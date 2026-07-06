@@ -1,0 +1,24 @@
+# Backend
+lab-platform-backend/target/
+lab-platform-backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend
+lab-platform-frontend/node_modules/
+lab-platform-frontend/dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+
+*.zip

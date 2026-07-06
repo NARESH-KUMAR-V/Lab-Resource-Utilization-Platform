@@ -1,0 +1,113 @@
+.data-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:white;
+
+    margin-top:20px;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+}
+
+.data-table thead{
+
+    background:#1976d2;
+
+    color:white;
+
+}
+
+.data-table th{
+
+    padding:15px;
+
+    text-align:left;
+
+}
+
+.data-table td{
+
+    padding:15px;
+
+    border-bottom:1px solid #eee;
+
+}
+
+.data-table tbody tr:hover{
+
+    background:#f4f8ff;
+
+}
+
+.action-btn{
+
+    padding:8px 14px;
+
+    border:none;
+
+    border-radius:6px;
+
+    cursor:pointer;
+
+    color:white;
+
+    margin-right:8px;
+
+}
+
+.edit-btn{
+
+    background:#1976d2;
+
+}
+
+.delete-btn{
+
+    background:#e53935;
+
+}
+
+.complete-btn{
+
+    background:#43a047;
+
+}
+
+.status-badge{
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    color:white;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+}
+
+.status-approved{
+
+    background:#43a047;
+
+}
+
+.status-pending{
+
+    background:#fb8c00;
+
+}
+
+.status-rejected{
+
+    background:#e53935;
+
+}
