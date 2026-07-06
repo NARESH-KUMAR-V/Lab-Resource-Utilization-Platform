@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import "../components/Table.css";
@@ -6,6 +6,7 @@ import "../components/Table.css";
 function NotificationPage() {
 
   const [notifications, setNotifications] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchNotifications();
@@ -61,25 +62,88 @@ function NotificationPage() {
 
   };
 
+  const filteredNotifications = useMemo(() => {
+
+    return notifications.filter((notification) =>
+
+      notification.message
+        .toLowerCase()
+        .includes(search.toLowerCase())
+
+    );
+
+  }, [notifications, search]);
+
+  const stats = {
+
+    total: notifications.length,
+
+    unread: notifications.filter(n => !n.read).length,
+
+    read: notifications.filter(n => n.read).length,
+
+  };
+
   return (
+
     <>
       <Navbar />
 
-      <div style={{ padding: "20px" }}>
+      <div className="dashboard">
 
-        <h2
-          style={{
-            textAlign: "center",
-            color: "#1976d2",
-            marginBottom: "20px",
-          }}
-        >
-          Notifications
-        </h2>
+        <h1>Notification Center</h1>
 
-        <table className="data-table">
+        <p>
 
-          <thead>
+          Stay informed about bookings, maintenance,
+          approvals and system activities.
+
+        </p>
+
+        <div className="dashboard-container">
+
+          <div className="dashboard-card">
+            <div className="card-content">
+              <h4>Total Notifications</h4>
+              <h2>{stats.total}</h2>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-content">
+              <h4>Unread</h4>
+              <h2>{stats.unread}</h2>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-content">
+              <h4>Read</h4>
+              <h2>{stats.read}</h2>
+            </div>
+          </div>
+
+        </div>
+
+        <div className="table-card">
+
+          <div className="table-header">
+
+            <h2>All Notifications</h2>
+
+            <input
+              type="text"
+              className="table-search"
+              placeholder="🔍 Search notifications..."
+              value={search}
+              onChange={(e)=>setSearch(e.target.value)}
+            />
+
+          </div>
+
+          <table className="data-table">
+
+            <thead>
 
             <tr>
 
@@ -95,13 +159,13 @@ function NotificationPage() {
 
             </tr>
 
-          </thead>
+            </thead>
 
-          <tbody>
+            <tbody>
 
-            {notifications.length > 0 ? (
+            {filteredNotifications.length>0 ?
 
-              notifications.map((notification) => (
+              filteredNotifications.map(notification=>(
 
                 <tr key={notification.id}>
 
@@ -109,7 +173,11 @@ function NotificationPage() {
 
                   <td>{notification.message}</td>
 
-                  <td>{notification.createdAt.replace("T"," ")}</td>
+                  <td>
+
+                    {notification.createdAt.replace("T"," ")}
+
+                  </td>
 
                   <td>
 
@@ -120,7 +188,11 @@ function NotificationPage() {
                           : "status-pending"
                       }`}
                     >
-                      {notification.read ? "READ" : "UNREAD"}
+
+                      {notification.read
+                        ? "Read"
+                        : "Unread"}
+
                     </span>
 
                   </td>
@@ -131,18 +203,18 @@ function NotificationPage() {
 
                       <button
                         className="action-btn edit-btn"
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={()=>markAsRead(notification.id)}
                       >
-                        Mark Read
+                        ✓ Mark Read
                       </button>
 
                     )}
 
                     <button
                       className="action-btn delete-btn"
-                      onClick={() => deleteNotification(notification.id)}
+                      onClick={()=>deleteNotification(notification.id)}
                     >
-                      Delete
+                      🗑 Delete
                     </button>
 
                   </td>
@@ -151,31 +223,33 @@ function NotificationPage() {
 
               ))
 
-            ) : (
+              :
 
               <tr>
 
                 <td
                   colSpan="5"
-                  style={{
-                    textAlign: "center",
-                    padding: "20px",
-                  }}
+                  className="empty-table"
                 >
-                  No notifications available.
+
+                  🔔 No notifications found.
+
                 </td>
 
               </tr>
 
-            )}
+            }
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
+
+        </div>
 
       </div>
 
     </>
+
   );
 
 }

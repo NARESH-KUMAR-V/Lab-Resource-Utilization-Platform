@@ -9,9 +9,11 @@ function EquipmentForm({
   return (
     <div className="form-card">
 
-      <h3>
-        {editId ? "Update Equipment" : "Add Equipment"}
-      </h3>
+      <div className="form-header">
+        <div>
+          <h2>{editId ? "Edit Equipment" : "Add New Equipment"}</h2>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit}>
 
@@ -22,6 +24,7 @@ function EquipmentForm({
             <input
               type="text"
               name="name"
+              placeholder="Enter equipment name"
               value={formData.name}
               onChange={handleChange}
               required
@@ -33,6 +36,7 @@ function EquipmentForm({
             <input
               type="text"
               name="category"
+              placeholder="Enter category"
               value={formData.category}
               onChange={handleChange}
               required
@@ -44,6 +48,7 @@ function EquipmentForm({
             <input
               type="text"
               name="department"
+              placeholder="Enter department name"
               value={formData.department}
               onChange={handleChange}
               required
@@ -55,6 +60,7 @@ function EquipmentForm({
             <input
               type="text"
               name="institution"
+              placeholder="Enter institution name"
               value={formData.institution}
               onChange={handleChange}
               required
@@ -63,23 +69,33 @@ function EquipmentForm({
 
           <div className="form-group">
             <label>Status</label>
+
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
             >
-              <option value="AVAILABLE">AVAILABLE</option>
-              <option value="BOOKED">BOOKED</option>
-              <option value="UNDER_MAINTENANCE">UNDER MAINTENANCE</option>
-              <option value="OUT_OF_SERVICE">OUT OF SERVICE</option>
-              <option value="RETIRED">RETIRED</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="BOOKED">Booked</option>
+              <option value="UNDER_MAINTENANCE">
+                Under Maintenance
+              </option>
+              <option value="OUT_OF_SERVICE">
+                Out Of Service
+              </option>
+              <option value="RETIRED">
+                Retired
+              </option>
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="form-group full-width">
             <label>Specifications</label>
+
             <textarea
+              rows="5"
               name="specifications"
+              placeholder="Enter equipment specifications..."
               value={formData.specifications}
               onChange={handleChange}
               required
@@ -88,10 +104,7 @@ function EquipmentForm({
 
         </div>
 
-        <button
-          className="submit-btn"
-          type="submit"
-        >
+        <button className="submit-btn" type="submit">
           {editId ? "Update Equipment" : "Add Equipment"}
         </button>
 

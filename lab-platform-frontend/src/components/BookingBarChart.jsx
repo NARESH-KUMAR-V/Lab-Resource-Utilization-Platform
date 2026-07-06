@@ -1,64 +1,102 @@
 import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
 } from "recharts";
+
+const COLORS = [
+  "#2E7D32",
+  "#FB8C00",
+  "#D32F2F",
+];
 
 function BookingBarChart({ stats }) {
 
-    const data = [
+  const data = [
 
-        {
-            status: "Approved",
-            count: stats.approvedBookings
-        },
+    {
+      status: "Approved",
+      count: stats.approvedBookings,
+    },
 
-        {
-            status: "Pending",
-            count: stats.pendingBookings
-        },
+    {
+      status: "Pending",
+      count: stats.pendingBookings,
+    },
 
-        {
-            status: "Rejected",
-            count: stats.rejectedBookings
-        }
+    {
+      status: "Rejected",
+      count: stats.rejectedBookings,
+    },
 
-    ];
+  ];
 
-    return (
+  return (
 
-        <div className="chart-card">
+    <div className="chart-card">
 
-            <h2>Booking Status</h2>
+      <div className="chart-header">
 
-            <ResponsiveContainer width="100%" height={320}>
+        <h2>Booking Status</h2>
 
-                <BarChart data={data}>
+        <p>Overview of booking requests</p>
 
-                    <CartesianGrid strokeDasharray="3 3"/>
+      </div>
 
-                    <XAxis dataKey="status"/>
+      <ResponsiveContainer
+        width="100%"
+        height={300}
+      >
 
-                    <YAxis/>
+        <BarChart
+          data={data}
+          margin={{
+            top: 10,
+            right: 20,
+            left: 0,
+            bottom: 10,
+          }}
+        >
 
-                    <Tooltip/>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+          />
 
-                    <Bar
-                        dataKey="count"
-                        fill="#1976d2"
-                    />
+          <XAxis dataKey="status" />
 
-                </BarChart>
+          <YAxis allowDecimals={false} />
 
-            </ResponsiveContainer>
+          <Tooltip />
 
-        </div>
+          <Bar
+            dataKey="count"
+            radius={[8, 8, 0, 0]}
+          >
 
-    );
+            {data.map((entry, index) => (
+
+              <Cell
+                key={index}
+                fill={COLORS[index]}
+              />
+
+            ))}
+
+          </Bar>
+
+        </BarChart>
+
+      </ResponsiveContainer>
+
+    </div>
+
+  );
 
 }
 

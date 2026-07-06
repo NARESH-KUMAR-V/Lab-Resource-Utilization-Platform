@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 import "./LoginPage.css";
-import { Link } from "react-router-dom";
 
 function LoginPage() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,6 +15,7 @@ function LoginPage() {
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     setError("");
@@ -27,16 +29,24 @@ function LoginPage() {
 
       login(response.data.token);
 
+      toast.success("Login successful!");
+
       navigate("/dashboard");
 
     } catch (err) {
 
+      console.error(err);
+
       setError("Invalid email or password");
 
+      toast.error("Invalid email or password");
+
     }
+
   };
 
   return (
+
     <div className="login-container">
 
       <div className="login-card">
@@ -75,7 +85,11 @@ function LoginPage() {
 
           </div>
 
-          {error && <p className="error-message">{error}</p>}
+          {error && (
+            <p className="error-message">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -94,16 +108,25 @@ function LoginPage() {
         </a>
 
         <div className="auth-link">
+
           <p>
+
             Don't have an account?{" "}
-            <Link to="/register">Register</Link>
+
+            <Link to="/register">
+              Register
+            </Link>
+
           </p>
+
         </div>
 
       </div>
 
     </div>
+
   );
+
 }
 
 export default LoginPage;

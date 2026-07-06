@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../api/axios";
 import "./LoginPage.css";
-import { Link } from "react-router-dom";
 
 function RegisterPage() {
 
@@ -29,13 +29,17 @@ function RegisterPage() {
         role,
       });
 
-      alert("Registration Successful!");
+      toast.success("Registration successful!");
 
       navigate("/login");
 
     } catch (err) {
 
+      console.error(err);
+
       setError("Registration failed. Email may already exist.");
+
+      toast.error("Registration failed. Email may already exist.");
 
     }
 
@@ -103,14 +107,12 @@ function RegisterPage() {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-
               <option value="RESEARCHER">Researcher</option>
               <option value="LAB_TECHNICIAN">Lab Technician</option>
               <option value="LAB_MANAGER">Lab Manager</option>
               <option value="DEPARTMENT_HEAD">Department Head</option>
               <option value="INSTITUTION_ADMIN">Institution Admin</option>
               <option value="SYSTEM_ADMIN">System Admin</option>
-
             </select>
 
           </div>
@@ -129,10 +131,17 @@ function RegisterPage() {
           </button>
 
           <div className="auth-link">
+
             <p>
+
               Already have an account?{" "}
-              <Link to="/login">Login</Link>
+
+              <Link to="/login">
+                Login
+              </Link>
+
             </p>
+
           </div>
 
         </form>

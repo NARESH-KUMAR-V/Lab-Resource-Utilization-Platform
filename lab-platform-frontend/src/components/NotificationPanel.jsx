@@ -4,64 +4,105 @@ import { FaBell } from "react-icons/fa";
 
 function NotificationPanel() {
 
-    const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
-    useEffect(() => {
-        loadNotifications();
-    }, []);
+  useEffect(() => {
+    loadNotifications();
+  }, []);
 
-    const loadNotifications = async () => {
+  const loadNotifications = async () => {
 
-        try {
+    try {
 
-            const response = await api.get("/notifications");
+      const response = await api.get("/notifications");
 
-            setNotifications(response.data.slice(0, 5));
+      setNotifications(response.data.slice(0, 5));
 
-        } catch (error) {
+    } catch (error) {
 
-            console.error("Error loading notifications:", error);
+      console.error("Error loading notifications:", error);
 
-        }
+    }
 
-    };
+  };
 
-    return (
+  return (
 
-        <div className="notification-card">
+    <div className="notification-card">
 
-            <h2>
-                <FaBell /> Recent Notifications
-            </h2>
+      <div className="notification-header">
 
-            {
-                notifications.length === 0 ?
+        <h2>
+          <FaBell />
+          Recent Notifications
+        </h2>
 
-                    <p>No notifications available.</p>
+        <span className="notification-count">
 
-                    :
+          {notifications.length}
 
-                    notifications.map(notification => (
+        </span>
 
-                        <div
-                            key={notification.id}
-                            className="notification-item"
-                        >
+      </div>
 
-                            <p>{notification.message}</p>
+      {
 
-                            <small>
-                                {notification.createdAt.replace("T", " ")}
-                            </small>
+        notifications.length === 0 ?
 
-                        </div>
+          <div className="notification-empty">
 
-                    ))
-            }
+            🔔 No notifications available.
 
-        </div>
+          </div>
 
-    );
+          :
+
+          notifications.map((notification) => (
+
+            <div
+              key={notification.id}
+              className={`notification-item ${
+                notification.read
+                  ? ""
+                  : "notification-unread"
+              }`}
+            >
+
+              <div className="notification-content">
+
+                <p>
+
+                  {notification.message}
+
+                </p>
+
+                <small>
+
+                  {notification.createdAt.replace("T", " ")}
+
+                </small>
+
+              </div>
+
+              {
+
+                !notification.read && (
+
+                  <span className="notification-dot"></span>
+
+                )
+
+              }
+
+            </div>
+
+          ))
+
+      }
+
+    </div>
+
+  );
 
 }
 

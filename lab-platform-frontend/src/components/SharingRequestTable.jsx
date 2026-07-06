@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./Table.css";
 
 function SharingRequestTable({
@@ -6,38 +7,62 @@ function SharingRequestTable({
   rejectRequest,
   deleteRequest,
 }) {
+
+  const [search, setSearch] = useState("");
+
+  const filteredRequests = requests.filter((request) =>
+    request.equipment?.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
-    <>
-      <h2
-        style={{
-          marginTop: "40px",
-          marginBottom: "20px",
-          color: "#1976d2",
-          textAlign: "center",
-        }}
-      >
-        Sharing Requests
-      </h2>
+
+    <div className="table-card">
+
+      <div className="table-header">
+
+        <h2>Sharing Requests</h2>
+
+        <input
+          type="text"
+          className="table-search"
+          placeholder="🔍 Search equipment..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+      </div>
 
       <table className="data-table">
 
         <thead>
+
           <tr>
+
             <th>ID</th>
+
             <th>Equipment</th>
+
             <th>Requester</th>
+
             <th>Purpose</th>
+
             <th>Request Date</th>
+
             <th>Status</th>
+
             <th>Actions</th>
+
           </tr>
+
         </thead>
 
         <tbody>
 
-          {requests.length > 0 ? (
+          {filteredRequests.length > 0 ? (
 
-            requests.map((request) => (
+            filteredRequests.map((request) => (
 
               <tr key={request.id}>
 
@@ -52,6 +77,7 @@ function SharingRequestTable({
                 <td>{request.requestDate}</td>
 
                 <td>
+
                   <span
                     className={`status-badge ${
                       request.status === "APPROVED"
@@ -63,34 +89,49 @@ function SharingRequestTable({
                   >
                     {request.status}
                   </span>
+
                 </td>
 
                 <td>
 
-                  {request.status === "PENDING" && (
+                  {request.status === "PENDING" ? (
+
                     <>
                       <button
                         className="action-btn edit-btn"
                         onClick={() => approveRequest(request.id)}
                       >
-                        Approve
+                        ✅ Approve
                       </button>
 
                       <button
                         className="action-btn delete-btn"
                         onClick={() => rejectRequest(request.id)}
                       >
-                        Reject
+                        ❌ Reject
                       </button>
                     </>
+
+                  ) : (
+
+                    <button
+                      className="action-btn complete-btn"
+                      disabled
+                    >
+                      ✔ Processed
+                    </button>
+
                   )}
 
                   <button
                     className="action-btn"
-                    style={{ background: "#616161" }}
+                    style={{
+                      background: "#616161",
+                      marginTop: "8px",
+                    }}
                     onClick={() => deleteRequest(request.id)}
                   >
-                    Delete
+                    🗑 Delete
                   </button>
 
                 </td>
@@ -105,12 +146,11 @@ function SharingRequestTable({
 
               <td
                 colSpan="7"
-                style={{
-                  textAlign: "center",
-                  padding: "20px",
-                }}
+                className="empty-table"
               >
-                No sharing requests found.
+
+                🤝 No sharing requests found.
+
               </td>
 
             </tr>
@@ -120,8 +160,11 @@ function SharingRequestTable({
         </tbody>
 
       </table>
-    </>
+
+    </div>
+
   );
+
 }
 
 export default SharingRequestTable;

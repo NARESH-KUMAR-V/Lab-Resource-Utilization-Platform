@@ -1,21 +1,36 @@
+import { useState } from "react";
 import "./Table.css";
 
 function MaintenanceTable({
   maintenanceRecords,
   completeMaintenance,
 }) {
+
+  const [search, setSearch] = useState("");
+
+  const filteredRecords = maintenanceRecords.filter((record) =>
+    record.equipment?.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
   return (
-    <>
-      <h2
-        style={{
-          marginTop: "40px",
-          marginBottom: "20px",
-          color: "#1976d2",
-          textAlign: "center",
-        }}
-      >
-        Maintenance Records
-      </h2>
+
+    <div className="table-card">
+
+      <div className="table-header">
+
+        <h2>Maintenance Records</h2>
+
+        <input
+          type="text"
+          className="table-search"
+          placeholder="🔍 Search equipment..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+      </div>
 
       <table className="data-table">
 
@@ -27,7 +42,7 @@ function MaintenanceTable({
 
             <th>Equipment</th>
 
-            <th>Maintenance Date</th>
+            <th>Date</th>
 
             <th>Performed By</th>
 
@@ -43,9 +58,9 @@ function MaintenanceTable({
 
         <tbody>
 
-          {maintenanceRecords.length > 0 ? (
+          {filteredRecords.length > 0 ? (
 
-            maintenanceRecords.map((record) => (
+            filteredRecords.map((record) => (
 
               <tr key={record.id}>
 
@@ -75,15 +90,25 @@ function MaintenanceTable({
 
                 <td>
 
-                  <button
-                    className="action-btn edit-btn"
-                    onClick={() => completeMaintenance(record.id)}
-                    disabled={record.status === "COMPLETED"}
-                  >
-                    {record.status === "COMPLETED"
-                      ? "Completed"
-                      : "Complete"}
-                  </button>
+                  {record.status === "COMPLETED" ? (
+
+                    <button
+                      className="action-btn complete-btn"
+                      disabled
+                    >
+                      ✔ Completed
+                    </button>
+
+                  ) : (
+
+                    <button
+                      className="action-btn edit-btn"
+                      onClick={() => completeMaintenance(record.id)}
+                    >
+                      🔧 Complete
+                    </button>
+
+                  )}
 
                 </td>
 
@@ -97,12 +122,11 @@ function MaintenanceTable({
 
               <td
                 colSpan="7"
-                style={{
-                  textAlign: "center",
-                  padding: "20px",
-                }}
+                className="empty-table"
               >
-                No maintenance records found.
+
+                🔧 No maintenance records found.
+
               </td>
 
             </tr>
@@ -113,8 +137,10 @@ function MaintenanceTable({
 
       </table>
 
-    </>
+    </div>
+
   );
+
 }
 
 export default MaintenanceTable;

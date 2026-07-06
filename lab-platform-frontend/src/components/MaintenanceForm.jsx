@@ -9,7 +9,13 @@ function MaintenanceForm({
   return (
     <div className="form-card">
 
-      <h3>Add Maintenance Record</h3>
+      <div className="form-header">
+        <h2>Add Maintenance Record</h2>
+        <p>
+          Record maintenance activities and keep laboratory equipment in
+          excellent condition.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit}>
 
@@ -58,6 +64,7 @@ function MaintenanceForm({
               name="performedBy"
               value={formData.performedBy}
               onChange={handleChange}
+              placeholder="Technician or Engineer Name"
               required
             />
           </div>
@@ -70,8 +77,8 @@ function MaintenanceForm({
               value={formData.status}
               onChange={handleChange}
             >
-              <option value="PENDING">PENDING</option>
-              <option value="COMPLETED">COMPLETED</option>
+              <option value="PENDING">Pending</option>
+              <option value="COMPLETED">Completed</option>
             </select>
           </div>
 
@@ -85,6 +92,7 @@ function MaintenanceForm({
               name="description"
               value={formData.description}
               onChange={handleChange}
+              placeholder="Example: Replaced damaged power supply, cleaned cooling fan, calibrated microscope lenses..."
               required
             />
 
@@ -96,7 +104,7 @@ function MaintenanceForm({
           className="submit-btn"
           type="submit"
         >
-          Save Maintenance
+          🔧 Save Maintenance Record
         </button>
 
       </form>

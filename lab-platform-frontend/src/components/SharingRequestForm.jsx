@@ -9,7 +9,12 @@ function SharingRequestForm({
   return (
     <div className="form-card">
 
-      <h3>Create Sharing Request</h3>
+      <div className="form-header">
+        <h2>Create Sharing Request</h2>
+        <p>
+          Request shared laboratory equipment for collaborative research and academic activities.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit}>
 
@@ -24,7 +29,7 @@ function SharingRequestForm({
               onChange={handleChange}
               required
             >
-              <option value="">Select Equipment</option>
+              <option value="">Select Shared Equipment</option>
 
               {equipment
                 .filter((item) => item.shared)
@@ -49,9 +54,10 @@ function SharingRequestForm({
               name="purpose"
               value={formData.purpose}
               onChange={handleChange}
-              placeholder="Purpose of requesting this equipment..."
+              placeholder="Example: Cross-department AI research, Final year project, Laboratory collaboration..."
               required
             />
+
           </div>
 
         </div>
@@ -60,7 +66,7 @@ function SharingRequestForm({
           className="submit-btn"
           type="submit"
         >
-          Submit Request
+          🤝 Submit Sharing Request
         </button>
 
       </form>

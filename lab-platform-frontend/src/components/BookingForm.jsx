@@ -9,7 +9,10 @@ function BookingForm({
   return (
     <div className="form-card">
 
-      <h3>Book Equipment</h3>
+      <div className="form-header">
+        <h2>Book Equipment</h2>
+        <p>Fill in the details below to create a laboratory booking.</p>
+      </div>
 
       <form onSubmit={handleSubmit}>
 
@@ -60,7 +63,7 @@ function BookingForm({
               name="purpose"
               value={bookingData.purpose}
               onChange={handleChange}
-              placeholder="Enter the purpose of booking..."
+              placeholder="Example: AI research experiment, thesis work, hardware testing..."
               required
             />
           </div>
@@ -71,7 +74,7 @@ function BookingForm({
           className="submit-btn"
           type="submit"
         >
-          Book Equipment
+          📅 Book Equipment
         </button>
 
       </form>

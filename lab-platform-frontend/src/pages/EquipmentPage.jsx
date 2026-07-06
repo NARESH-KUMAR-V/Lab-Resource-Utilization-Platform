@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import api from "../api/axios";
 import EquipmentForm from "../components/EquipmentForm";
 import EquipmentTable from "../components/EquipmentTable";
@@ -6,9 +7,9 @@ import Navbar from "../components/Navbar";
 import "./EquipmentPage.css";
 
 function EquipmentPage() {
+
   const [equipment, setEquipment] = useState([]);
   const [searchText, setSearchText] = useState("");
-
   const [editId, setEditId] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -25,143 +26,192 @@ function EquipmentPage() {
   }, []);
 
   const fetchEquipment = async () => {
+
     try {
+
       const response = await api.get("/equipment");
+
       setEquipment(response.data);
+
     } catch (error) {
-      console.error("Error fetching equipment:", error);
+
+      console.error(error);
+
+      toast.error("Failed to load equipment.");
+
     }
+
   };
 
   const searchEquipment = async () => {
-  try {
-    const response = await api.get(
-      `/equipment/search?name=${searchText}`
-    );
-    setEquipment(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-};
+
+    try {
+
+      const response = await api.get(
+        `/equipment/search?name=${searchText}`
+      );
+
+      setEquipment(response.data);
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Search failed.");
+
+    }
+
+  };
 
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  try {
-    if (editId) {
-      await api.put(`/equipment/${editId}`, formData);
-      alert("Equipment updated successfully!");
-    } else {
-      await api.post("/equipment", formData);
-      alert("Equipment added successfully!");
+    e.preventDefault();
+
+    try {
+
+      if (editId) {
+
+        await api.put(`/equipment/${editId}`, formData);
+
+        toast.success("Equipment updated successfully!");
+
+      } else {
+
+        await api.post("/equipment", formData);
+
+        toast.success("Equipment added successfully!");
+
+      }
+
+      setFormData({
+        name: "",
+        category: "",
+        specifications: "",
+        status: "AVAILABLE",
+        department: "",
+        institution: "",
+      });
+
+      setEditId(null);
+
+      fetchEquipment();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Operation failed.");
+
     }
 
-    setFormData({
-      name: "",
-      category: "",
-      specifications: "",
-      status: "AVAILABLE",
-      department: "",
-      institution: "",
-    });
-
-    setEditId(null);
-
-    fetchEquipment();
-
-  } catch (error) {
-    console.error(error);
-    alert("Operation failed.");
-  }
-};
+  };
 
   const handleDelete = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this equipment?"
-  );
 
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this equipment?"
+    );
 
-  try {
-    await api.delete(`/equipment/${id}`);
+    if (!confirmDelete) return;
 
-    alert("Equipment deleted successfully!");
+    try {
 
-    fetchEquipment();
-  } catch (error) {
-    console.error(error);
-    alert("Failed to delete equipment.");
-  }
-};
+      await api.delete(`/equipment/${id}`);
 
-const handleEdit = (item) => {
-  setEditId(item.id);
+      toast.success("Equipment deleted successfully!");
 
-  setFormData({
-    name: item.name,
-    category: item.category,
-    specifications: item.specifications,
-    status: item.status,
-    department: item.department,
-    institution: item.institution,
-  });
-};
+      fetchEquipment();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to delete equipment.");
+
+    }
+
+  };
+
+  const handleEdit = (item) => {
+
+    setEditId(item.id);
+
+    setFormData({
+
+      name: item.name,
+      category: item.category,
+      specifications: item.specifications,
+      status: item.status,
+      department: item.department,
+      institution: item.institution,
+
+    });
+
+  };
 
   return (
-  <>
-    <Navbar />
 
-    <div style={{ padding: "20px" }}>
-      <h2>Equipment Inventory</h2>
+    <>
+      <Navbar />
 
-      <div className="search-container">
+      <div className="equipment-page">
 
-  <input
-    type="text"
-    placeholder="🔍 Search equipment..."
-    value={searchText}
-    onChange={(e) => setSearchText(e.target.value)}
-    className="search-input"
-  />
+        <h2>Equipment Inventory</h2>
 
-  <button
-    className="search-btn"
-    onClick={searchEquipment}
-  >
-    Search
-  </button>
+        <div className="search-container">
 
-  <button
-    className="show-btn"
-    onClick={fetchEquipment}
-  >
-    Show All
-  </button>
+          <input
+            type="text"
+            placeholder="🔍 Search equipment..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="search-input"
+          />
 
-</div>
+          <button
+            className="search-btn"
+            onClick={searchEquipment}
+          >
+            Search
+          </button>
 
-      <EquipmentForm
-    formData={formData}
-    handleChange={handleChange}
-    handleSubmit={handleSubmit}
-    editId={editId}
-    />
+          <button
+            className="show-btn"
+            onClick={fetchEquipment}
+          >
+            Show All
+          </button>
 
-      <EquipmentTable
-  equipment={equipment}
-  handleEdit={handleEdit}
-  handleDelete={handleDelete}
-/>
-    </div>
-  </>
+        </div>
+
+        <EquipmentForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          editId={editId}
+        />
+
+        <EquipmentTable
+          equipment={equipment}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+
+      </div>
+
+    </>
+
   );
+
 }
 
 export default EquipmentPage;

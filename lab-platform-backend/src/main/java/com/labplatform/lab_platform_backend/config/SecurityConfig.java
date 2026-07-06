@@ -1,7 +1,7 @@
 package com.labplatform.lab_platform_backend.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import com.labplatform.lab_platform_backend.service.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -46,91 +46,154 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(DaoAuthenticationProvider provider) {
+    public AuthenticationManager authenticationManager(
+            DaoAuthenticationProvider provider) {
         return new ProviderManager(provider);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
 
-        // If your frontend is running on 5174, change this to 5174
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
                 "http://localhost:5174"
         ));
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
         config.setAllowedHeaders(List.of("*"));
+
         config.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
 
         return source;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
 
         http
+
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .cors(cors ->
+                        cors.configurationSource(corsConfigurationSource()))
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/**", "/oauth2/**", "/login/**").permitAll()
+                        // Public APIs
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/oauth2/**",
+                                "/login/**"
+                        ).permitAll()
 
+                        // Equipment
                         .requestMatchers(HttpMethod.POST, "/api/equipment/**")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.PUT, "/api/equipment/**")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.PUT, "/api/equipment/*/share")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.PUT, "/api/bookings/**")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.DELETE, "/api/equipment/**")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.POST, "/api/sharing-requests")
-                        .hasRole("RESEARCHER")
-
-                        .requestMatchers(HttpMethod.PUT, "/api/sharing-requests/**")
-                        .hasAnyRole("LAB_MANAGER", "INSTITUTION_ADMIN", "SYSTEM_ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/api/analytics/**")
                         .hasAnyRole(
                                 "LAB_MANAGER",
                                 "INSTITUTION_ADMIN",
                                 "SYSTEM_ADMIN"
                         )
 
+                        .requestMatchers(HttpMethod.PUT, "/api/equipment/**")
+                        .hasAnyRole(
+                                "LAB_MANAGER",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        .requestMatchers(HttpMethod.DELETE, "/api/equipment/**")
+                        .hasAnyRole(
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        .requestMatchers(HttpMethod.PUT, "/api/equipment/*/share")
+                        .hasAnyRole(
+                                "LAB_MANAGER",
+                                "DEPARTMENT_HEAD",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        // Booking Approval
+                        .requestMatchers(HttpMethod.PUT, "/api/bookings/**")
+                        .hasAnyRole(
+                                "LAB_MANAGER",
+                                "DEPARTMENT_HEAD",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        // Sharing Requests
+                        .requestMatchers(HttpMethod.POST, "/api/sharing-requests")
+                        .hasRole("RESEARCHER")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/sharing-requests/**")
+                        .hasAnyRole(
+                                "LAB_MANAGER",
+                                "DEPARTMENT_HEAD",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        // Analytics
+                        .requestMatchers(HttpMethod.GET, "/api/analytics/**")
+                        .hasAnyRole(
+                                "LAB_MANAGER",
+                                "DEPARTMENT_HEAD",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
+
+                        // Dashboard
+                        .requestMatchers(HttpMethod.GET, "/api/dashboard/**")
+                        .authenticated()
+
+                        // Everything else
                         .anyRequest().authenticated()
                 )
 
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
-                        })
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(
+                                        HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((request,
+                                              response,
+                                              accessDeniedException) ->
+                                response.sendError(
+                                        HttpServletResponse.SC_FORBIDDEN,
+                                        "Forbidden"))
                 )
 
                 .oauth2Login(oauth2 ->
                         oauth2.successHandler(oAuth2LoginSuccessHandler)
                 )
 
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
