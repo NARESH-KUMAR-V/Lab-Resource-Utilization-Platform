@@ -24,22 +24,16 @@ function MaintenancePage() {
   }, []);
 
   const loadMaintenance = async () => {
+  try {
+    const response = await api.get("/maintenance");
 
-    try {
+    console.log("Maintenance API:", response.data);
 
-      const response = await api.get("/maintenance");
-
-      setMaintenanceRecords(response.data);
-
-    } catch (error) {
-
-      console.error(error);
-
-      toast.error("Failed to load maintenance records.");
-
-    }
-
-  };
+    setMaintenanceRecords(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const loadEquipment = async () => {
 

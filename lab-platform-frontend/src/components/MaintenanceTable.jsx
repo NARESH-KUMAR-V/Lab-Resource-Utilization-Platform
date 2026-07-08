@@ -8,11 +8,15 @@ function MaintenanceTable({
 
   const [search, setSearch] = useState("");
 
-  const filteredRecords = maintenanceRecords.filter((record) =>
-    record.equipment?.name
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+ const filteredRecords = maintenanceRecords.filter((record) => {
+  console.log(record.equipment);
+  return record.equipment?.name
+    ?.toLowerCase()
+    .includes(search.toLowerCase());
+});
+
+  console.log("Maintenance Records:", maintenanceRecords);
+console.log("Filtered Records:", filteredRecords);
 
   return (
 

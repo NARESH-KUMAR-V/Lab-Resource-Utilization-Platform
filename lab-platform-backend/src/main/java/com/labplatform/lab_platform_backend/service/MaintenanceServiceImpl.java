@@ -1,11 +1,11 @@
 package com.labplatform.lab_platform_backend.service;
 
-import com.labplatform.lab_platform_backend.entity.Maintenance;
-import com.labplatform.lab_platform_backend.repository.MaintenanceRepository;
-import org.springframework.stereotype.Service;
 import com.labplatform.lab_platform_backend.entity.Equipment;
 import com.labplatform.lab_platform_backend.entity.EquipmentStatus;
+import com.labplatform.lab_platform_backend.entity.Maintenance;
 import com.labplatform.lab_platform_backend.repository.EquipmentRepository;
+import com.labplatform.lab_platform_backend.repository.MaintenanceRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -17,7 +17,6 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
     public MaintenanceServiceImpl(MaintenanceRepository maintenanceRepository,
                                   EquipmentRepository equipmentRepository) {
-
         this.maintenanceRepository = maintenanceRepository;
         this.equipmentRepository = equipmentRepository;
     }
@@ -36,11 +35,16 @@ public class MaintenanceServiceImpl implements MaintenanceService {
     @Override
     public Maintenance createMaintenance(Maintenance maintenance) {
 
-        Equipment equipment = maintenance.getEquipment();
+        Long equipmentId = maintenance.getEquipment().getId();
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new RuntimeException("Equipment not found"));
 
         equipment.setStatus(EquipmentStatus.UNDER_MAINTENANCE);
 
         equipmentRepository.save(equipment);
+
+        maintenance.setEquipment(equipment);
 
         maintenance.setStatus("IN_PROGRESS");
 
@@ -52,7 +56,12 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 
         Maintenance maintenance = getMaintenanceById(id);
 
-        maintenance.setEquipment(updatedMaintenance.getEquipment());
+        Long equipmentId = updatedMaintenance.getEquipment().getId();
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new RuntimeException("Equipment not found"));
+
+        maintenance.setEquipment(equipment);
         maintenance.setMaintenanceDate(updatedMaintenance.getMaintenanceDate());
         maintenance.setDescription(updatedMaintenance.getDescription());
         maintenance.setPerformedBy(updatedMaintenance.getPerformedBy());
