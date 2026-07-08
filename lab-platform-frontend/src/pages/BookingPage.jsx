@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 import api from "../api/axios";
 import BookingForm from "../components/BookingForm";
 import BookingTable from "../components/BookingTable";
@@ -17,57 +18,63 @@ function BookingPage() {
     purpose: "",
   });
 
+  // ==========================
+  // Get role from JWT token
+  // ==========================
+  const token = localStorage.getItem("token");
+
+  let role = "";
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      role = decoded.role || "";
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const isResearcher = role === "ROLE_RESEARCHER";
+
   useEffect(() => {
     fetchEquipment();
-    fetchMyBookings();
+    fetchBookings();
   }, []);
 
   const fetchEquipment = async () => {
-
     try {
-
       const response = await api.get("/equipment");
-
       setEquipment(response.data);
-
     } catch (error) {
-
       console.error(error);
-
       toast.error("Failed to load equipment.");
-
     }
-
   };
 
-  const fetchMyBookings = async () => {
-
+  const fetchBookings = async () => {
     try {
 
-      const response = await api.get("/bookings/my");
+      let response;
+
+      if (isResearcher) {
+        response = await api.get("/bookings/my");
+      } else {
+        response = await api.get("/bookings");
+      }
 
       setBookings(response.data);
 
     } catch (error) {
-
       console.error(error);
-
       toast.error("Failed to load bookings.");
-
     }
-
   };
 
   const handleChange = (e) => {
-
     setBookingData({
-
       ...bookingData,
-
       [e.target.name]: e.target.value,
-
     });
-
   };
 
   const handleSubmit = async (e) => {
@@ -81,22 +88,78 @@ function BookingPage() {
       toast.success("Booking created successfully!");
 
       setBookingData({
-
         equipmentId: "",
-
         bookingDate: "",
-
         purpose: "",
-
       });
 
-      fetchMyBookings();
+      fetchBookings();
 
     } catch (error) {
 
       console.error(error);
 
       toast.error("Failed to create booking.");
+
+    }
+
+  };
+
+  const approveBooking = async (id) => {
+
+    try {
+
+      await api.put(`/bookings/${id}/approve`);
+
+      toast.success("Booking approved.");
+
+      fetchBookings();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to approve booking.");
+
+    }
+
+  };
+
+  const rejectBooking = async (id) => {
+
+    try {
+
+      await api.put(`/bookings/${id}/reject`);
+
+      toast.success("Booking rejected.");
+
+      fetchBookings();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to reject booking.");
+
+    }
+
+  };
+
+  const completeBooking = async (id) => {
+
+    try {
+
+      await api.put(`/bookings/${id}/complete`);
+
+      toast.success("Booking completed.");
+
+      fetchBookings();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to complete booking.");
 
     }
 
@@ -130,8 +193,7 @@ function BookingPage() {
         <h1>Book Equipment</h1>
 
         <p>
-          Schedule laboratory equipment for research and
-          monitor your booking requests.
+          Schedule laboratory equipment for research and monitor booking requests.
         </p>
 
         <div className="dashboard-container">
@@ -166,20 +228,26 @@ function BookingPage() {
 
         </div>
 
-        <BookingForm
-          equipment={equipment}
-          bookingData={bookingData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-        />
+        {isResearcher && (
+          <BookingForm
+            equipment={equipment}
+            bookingData={bookingData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+          />
+        )}
 
         <div className="charts-section">
-
           <BookingBarChart stats={bookingStats} />
-
         </div>
 
-        <BookingTable bookings={bookings} />
+        <BookingTable
+          bookings={bookings}
+          approveBooking={approveBooking}
+          rejectBooking={rejectBooking}
+          completeBooking={completeBooking}
+          role={role}
+        />
 
       </div>
 

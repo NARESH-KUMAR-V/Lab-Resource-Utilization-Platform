@@ -1,15 +1,30 @@
 import { useState } from "react";
 import "./Table.css";
 
-function BookingTable({ bookings }) {
+function BookingTable({
+  bookings,
+  approveBooking,
+  rejectBooking,
+  completeBooking,
+  role,
+}) {
 
   const [search, setSearch] = useState("");
 
-  const filteredBookings = bookings.filter((booking) =>
-    booking.equipment?.name
+  const isAdmin =
+  role === "ROLE_SYSTEM_ADMIN" ||
+  role === "ROLE_LAB_MANAGER" ||
+  role === "ROLE_INSTITUTION_ADMIN";
+
+  const filteredBookings = bookings.filter((booking) => {
+
+    if (search.trim() === "") return true;
+
+    return booking.equipment?.name
       ?.toLowerCase()
-      .includes(search.toLowerCase())
-  );
+      .includes(search.toLowerCase());
+
+  });
 
   return (
 
@@ -17,7 +32,9 @@ function BookingTable({ bookings }) {
 
       <div className="table-header">
 
-        <h2>My Bookings</h2>
+        <h2>
+          {isAdmin ? "All Bookings" : "My Bookings"}
+        </h2>
 
         <input
           type="text"
@@ -39,11 +56,15 @@ function BookingTable({ bookings }) {
 
             <th>Equipment</th>
 
+            <th>User</th>
+
             <th>Booking Date</th>
 
             <th>Purpose</th>
 
             <th>Status</th>
+
+            {isAdmin && <th>Actions</th>}
 
           </tr>
 
@@ -61,6 +82,8 @@ function BookingTable({ bookings }) {
 
                 <td>{booking.equipment?.name}</td>
 
+                <td>{booking.user?.name}</td>
+
                 <td>{booking.bookingDate}</td>
 
                 <td>{booking.purpose}</td>
@@ -73,6 +96,8 @@ function BookingTable({ bookings }) {
                         ? "status-approved"
                         : booking.status === "REJECTED"
                         ? "status-rejected"
+                        : booking.status === "COMPLETED"
+                        ? "status-approved"
                         : "status-pending"
                     }`}
                   >
@@ -80,6 +105,65 @@ function BookingTable({ bookings }) {
                   </span>
 
                 </td>
+
+                {isAdmin && (
+
+                  <td>
+
+                    {booking.status === "PENDING" && (
+
+                      <>
+
+                        <button
+                          className="action-btn edit-btn"
+                          onClick={() =>
+                            approveBooking(booking.id)
+                          }
+                        >
+                          ✅ Approve
+                        </button>
+
+                        <button
+                          className="action-btn delete-btn"
+                          onClick={() =>
+                            rejectBooking(booking.id)
+                          }
+                        >
+                          ❌ Reject
+                        </button>
+
+                      </>
+
+                    )}
+
+                    {booking.status === "APPROVED" && (
+
+                      <button
+                        className="action-btn complete-btn"
+                        onClick={() =>
+                          completeBooking(booking.id)
+                        }
+                      >
+                        ✔ Complete
+                      </button>
+
+                    )}
+
+                    {(booking.status === "REJECTED" ||
+                      booking.status === "COMPLETED") && (
+
+                      <button
+                        className="action-btn"
+                        disabled
+                      >
+                        Processed
+                      </button>
+
+                    )}
+
+                  </td>
+
+                )}
 
               </tr>
 
@@ -90,7 +174,7 @@ function BookingTable({ bookings }) {
             <tr>
 
               <td
-                colSpan="5"
+                colSpan={isAdmin ? 7 : 6}
                 className="empty-table"
               >
 
