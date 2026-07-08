@@ -80,16 +80,33 @@ npm run dev
 
 ## 📸 Screenshots
 
-Coming Soon...
+### 🔐 Login Page
 
-- Login Page
-- Register Page
-- Dashboard
-- Equipment Management
-- Booking Management
-- Maintenance Management
-- Sharing Requests
-- Notifications
+![Login Page](Images/login.png)
+
+### 🏠 Dashboard
+
+![Dashboard](Images/dashboard.png)
+
+### 🖥️ Equipment Management
+
+![Equipment](Images/equipment.png)
+
+### 📅 Booking Management
+
+![Booking](Images/booking.png)
+
+### 🔧 Maintenance Management
+
+![Maintenance](Images/maintenance.png)
+
+### 🤝 Sharing Requests
+
+![Sharing](Images/sharing.png)
+
+### 🔔 Notifications
+
+![Notifications](Images/notification.png)
 
 ---
 
