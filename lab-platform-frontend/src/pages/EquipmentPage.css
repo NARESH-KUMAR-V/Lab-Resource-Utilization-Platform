@@ -1,71 +1,325 @@
-/* Main Page */
-.equipment-page {
-    padding: 30px 40px;
-    background: #f4f7fb;
-    min-height: 100vh;
+/* ===========================
+   PAGE
+=========================== */
+
+.equipment-page{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:28px;
+
 }
 
-/* Page Title */
-.equipment-page h2 {
-    font-size: 36px;
-    color: #1565c0;
-    margin-bottom: 20px;
-    font-weight: bold;
+/* ===========================
+   HEADER
+=========================== */
+
+.page-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:20px;
+
 }
 
-/* Search Section */
-.search-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin: 30px 0;
-    flex-wrap: wrap;
+.page-header h1{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    font-size:34px;
+
+    color:#222;
+
+    margin:0;
+
+    font-weight:700;
+
 }
 
-/* Search Input */
-.search-input {
-    width: 380px;
-    padding: 14px 18px;
-    border: 1px solid #d0d7de;
-    border-radius: 10px;
-    font-size: 16px;
-    background: white;
-    transition: all 0.3s ease;
+.page-header h1 svg{
+
+    color:#6c63ff;
+
 }
 
-.search-input:focus {
-    outline: none;
-    border-color: #1976d2;
-    box-shadow: 0 0 8px rgba(25,118,210,.25);
+.page-header p{
+
+    margin-top:8px;
+
+    color:#777;
+
+    font-size:16px;
+
 }
 
-/* Buttons */
-.search-btn,
-.show-btn {
-    padding: 13px 26px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    color: white;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all .3s ease;
+/* ===========================
+   ADD BUTTON
+=========================== */
+
+.add-equipment-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    border:none;
+
+    background:linear-gradient(135deg,#6c63ff,#564df3);
+
+    color:white;
+
+    padding:14px 24px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+    box-shadow:0 10px 20px rgba(108,99,255,.25);
+
 }
 
-.search-btn {
-    background: #1976d2;
+.add-equipment-btn:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 15px 28px rgba(108,99,255,.35);
+
 }
 
-.search-btn:hover {
-    background: #1565c0;
-    transform: translateY(-2px);
+/* ===========================
+   TOOLBAR
+=========================== */
+
+.equipment-toolbar{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+    flex-wrap:wrap;
+
 }
 
-.show-btn {
-    background: #28a745;
+/* ===========================
+   SEARCH
+=========================== */
+
+.search-wrapper{
+
+    flex:1;
+
+    min-width:280px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    background:#f5f6fb;
+
+    border-radius:12px;
+
+    padding:14px 18px;
+
 }
 
-.show-btn:hover {
-    background: #218838;
-    transform: translateY(-2px);
+.search-wrapper svg{
+
+    color:#777;
+
+    font-size:18px;
+
+}
+
+.search-wrapper input{
+
+    flex:1;
+
+    border:none;
+
+    outline:none;
+
+    background:transparent;
+
+    font-size:15px;
+
+}
+
+/* ===========================
+   BUTTONS
+=========================== */
+
+.toolbar-btn{
+
+    border:none;
+
+    padding:13px 24px;
+
+    border-radius:10px;
+
+    background:#6c63ff;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    transition:.3s;
+
+}
+
+.toolbar-btn:hover{
+
+    transform:translateY(-2px);
+
+    background:#564df3;
+
+}
+
+.toolbar-btn.secondary{
+
+    background:#eef1ff;
+
+    color:#6c63ff;
+
+}
+
+.toolbar-btn.secondary:hover{
+
+    background:#dfe3ff;
+
+}
+
+/* ===========================
+   FORM ANIMATION
+=========================== */
+
+.form-card{
+
+    animation:slideDown .35s ease;
+
+}
+
+@keyframes slideDown{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-25px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+/* ===========================
+   TABLE
+=========================== */
+
+.table-card{
+
+    margin-top:0;
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+.page-header{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+.page-header h1{
+
+    font-size:28px;
+
+}
+
+.equipment-toolbar{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+}
+
+.search-wrapper{
+
+    width:100%;
+
+}
+
+.toolbar-btn{
+
+    width:100%;
+
+    justify-content:center;
+
+}
+
+.add-equipment-btn{
+
+    width:100%;
+
+    justify-content:center;
+
+}
+
 }

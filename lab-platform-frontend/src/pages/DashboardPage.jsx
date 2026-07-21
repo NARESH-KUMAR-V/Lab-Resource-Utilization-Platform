@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import Layout from "../components/Layout";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 import "./Dashboard.css";
+
 import DashboardCard from "../components/DashboardCard";
 import EquipmentPieChart from "../components/EquipmentPieChart";
 import BookingBarChart from "../components/BookingBarChart";
-import NotificationPanel from "../components/NotificationPanel";
 
 import {
   FaFlask,
@@ -18,7 +19,9 @@ import {
 } from "react-icons/fa";
 
 function DashboardPage() {
+
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const [stats, setStats] = useState({
     totalEquipment: 0,
@@ -29,6 +32,7 @@ function DashboardPage() {
     totalBookings: 0,
     approvedBookings: 0,
     pendingBookings: 0,
+    rejectedBookings: 0,
 
     totalSharingRequests: 0,
 
@@ -41,29 +45,39 @@ function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [role]);
 
   const loadDashboardData = async () => {
+
     try {
 
-        const response = await api.get("/analytics/dashboard");
+      let response;
 
-        console.log("Analytics Response:", response.data);
+      if (role === "RESEARCHER") {
 
-        setStats(response.data);
+        response = await api.get("/analytics/my-dashboard");
+
+      } else {
+
+        response = await api.get("/analytics/dashboard");
+
+      }
+
+      console.log("Analytics Response:", response.data);
+
+      setStats(response.data);
 
     } catch (error) {
 
-        console.log(error.response);
-
-        console.error("Error loading dashboard data:", error);
+      console.error(error);
 
     }
-};
+
+  };
 
   return (
-    <>
-      <Navbar />
+
+    <Layout>
 
       <div className="dashboard">
 
@@ -80,14 +94,22 @@ function DashboardPage() {
           />
 
           <DashboardCard
-            title="Bookings"
+            title={role === "RESEARCHER" ? "My Bookings" : "Bookings"}
             value={stats.totalBookings}
             icon={<FaClipboardList />}
           />
 
           <DashboardCard
-            title="Sharing Requests"
-            value={stats.totalSharingRequests}
+            title={
+              role === "RESEARCHER"
+                ? "Pending Bookings"
+                : "Sharing Requests"
+            }
+            value={
+              role === "RESEARCHER"
+                ? stats.pendingBookings
+                : stats.totalSharingRequests
+            }
             icon={<FaShareAlt />}
           />
 
@@ -98,14 +120,30 @@ function DashboardPage() {
           />
 
           <DashboardCard
-            title="Maintenance"
-            value={stats.totalMaintenanceRecords}
+            title={
+              role === "RESEARCHER"
+                ? "Approved Bookings"
+                : "Maintenance"
+            }
+            value={
+              role === "RESEARCHER"
+                ? stats.approvedBookings
+                : stats.totalMaintenanceRecords
+            }
             icon={<FaTools />}
           />
 
           <DashboardCard
-            title="Utilization Hours"
-            value={Number(stats.totalUtilizationHours).toFixed(2)}
+            title={
+              role === "RESEARCHER"
+                ? "Rejected Bookings"
+                : "Utilization Hours"
+            }
+            value={
+              role === "RESEARCHER"
+                ? stats.rejectedBookings
+                : Number(stats.totalUtilizationHours).toFixed(2)
+            }
             icon={<FaClock />}
           />
 
@@ -119,15 +157,10 @@ function DashboardPage() {
 
         </div>
 
-          <div className="notification-section">
-
-          <NotificationPanel />
-
-        </div>
-
         <div className="cards">
 
           <div className="card">
+
             <h2>📦 Equipment Management</h2>
 
             <p>
@@ -137,9 +170,11 @@ function DashboardPage() {
             <button onClick={() => navigate("/equipment")}>
               Open Equipment
             </button>
+
           </div>
 
           <div className="card">
+
             <h2>📅 Booking Management</h2>
 
             <p>
@@ -149,13 +184,17 @@ function DashboardPage() {
             <button onClick={() => navigate("/bookings")}>
               Open Bookings
             </button>
+
           </div>
 
         </div>
 
       </div>
-    </>
+
+    </Layout>
+
   );
+
 }
 
 export default DashboardPage;

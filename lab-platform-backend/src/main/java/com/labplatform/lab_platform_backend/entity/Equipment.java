@@ -12,6 +12,7 @@ public class Equipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String category;
@@ -19,13 +20,21 @@ public class Equipment {
     @Column(length = 1000)
     private String specifications;
 
+    @Column(length = 1000)
+    private String description;
+
+    private String imageUrl;
+
     @Enumerated(EnumType.STRING)
     private EquipmentStatus status = EquipmentStatus.AVAILABLE;
 
-    private String department;
-
-    private String institution;
-
     @Column(nullable = false)
     private Boolean shared = false;
+
+    @Column(nullable = false)
+    private Double costPerDay;
+
+    @ManyToOne
+    @JoinColumn(name = "laboratory_id", nullable = false)
+    private Laboratory laboratory;
 }

@@ -1,35 +1,14 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { jwtDecode } from "jwt-decode";
 import "./Navbar.css";
 
 function Navbar() {
 
-  const { token, logout } = useAuth();
+  const { user, role, logout } = useAuth();
+
   const navigate = useNavigate();
 
-  let role = "";
-
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-
-      role =
-        decoded.role ||
-        decoded.authorities?.[0] ||
-        "";
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  const hasRole = (...roles) => {
-
-    return roles.some((r) =>
-      role.includes(r)
-    );
-
-  };
+  const hasRole = (...roles) => roles.includes(role);
 
   const handleLogout = () => {
     logout();
@@ -37,7 +16,6 @@ function Navbar() {
   };
 
   return (
-
     <nav className="navbar">
 
       <h2 className="logo">
@@ -57,6 +35,7 @@ function Navbar() {
         {hasRole(
           "RESEARCHER",
           "LAB_MANAGER",
+          "DEPARTMENT_HEAD",
           "INSTITUTION_ADMIN",
           "SYSTEM_ADMIN"
         ) && (
@@ -66,6 +45,7 @@ function Navbar() {
         )}
 
         {hasRole(
+          "LAB_TECHNICIAN",
           "LAB_MANAGER",
           "INSTITUTION_ADMIN",
           "SYSTEM_ADMIN"
@@ -78,11 +58,37 @@ function Navbar() {
         {hasRole(
           "RESEARCHER",
           "LAB_MANAGER",
+          "DEPARTMENT_HEAD",
           "INSTITUTION_ADMIN",
           "SYSTEM_ADMIN"
         ) && (
           <NavLink to="/sharing-requests">
             Sharing
+          </NavLink>
+        )}
+
+        {hasRole(
+          "INSTITUTION_ADMIN",
+          "SYSTEM_ADMIN",
+          "DEPARTMENT_HEAD"
+        ) && (
+          <NavLink to="/users">
+            Users
+          </NavLink>
+        )}
+
+        {hasRole(
+          "INSTITUTION_ADMIN",
+          "SYSTEM_ADMIN"
+        ) && (
+          <NavLink to="/laboratories">
+            Laboratories
+          </NavLink>
+        )}
+
+        {hasRole("SYSTEM_ADMIN") && (
+          <NavLink to="/institutions">
+            Institutions
           </NavLink>
         )}
 
@@ -93,11 +99,12 @@ function Navbar() {
         <span
           style={{
             color: "#fff",
-            fontWeight: "bold",
-            marginLeft: "15px",
+            marginLeft: "20px",
+            textAlign: "right"
           }}
         >
-          {role.replace("ROLE_", "")}
+          <div><strong>{user?.name}</strong></div>
+          <div style={{ fontSize: "12px" }}>{role}</div>
         </span>
 
         <button onClick={handleLogout}>
@@ -107,9 +114,7 @@ function Navbar() {
       </div>
 
     </nav>
-
   );
-
 }
 
 export default Navbar;

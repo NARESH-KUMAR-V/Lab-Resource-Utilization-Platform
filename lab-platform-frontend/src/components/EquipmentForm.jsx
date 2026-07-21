@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import api from "../api/axios";
 import "./Form.css";
 
 function EquipmentForm({
@@ -6,6 +8,22 @@ function EquipmentForm({
   handleSubmit,
   editId,
 }) {
+
+  const [laboratories, setLaboratories] = useState([]);
+
+  useEffect(() => {
+    loadLaboratories();
+  }, []);
+
+  const loadLaboratories = async () => {
+    try {
+      const response = await api.get("/laboratories");
+      setLaboratories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="form-card">
 
@@ -44,27 +62,45 @@ function EquipmentForm({
           </div>
 
           <div className="form-group">
-            <label>Department</label>
+            <label>Cost Per Day (₹)</label>
             <input
-              type="text"
-              name="department"
-              placeholder="Enter department name"
-              value={formData.department}
+              type="number"
+              name="costPerDay"
+              placeholder="Enter daily utilization cost"
+              value={formData.costPerDay}
               onChange={handleChange}
+              min="0"
+              step="0.01"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Institution</label>
-            <input
-              type="text"
-              name="institution"
-              placeholder="Enter institution name"
-              value={formData.institution}
-              onChange={handleChange}
+            <label>Laboratory</label>
+
+            <select
+              name="laboratory"
+              value={formData.laboratory?.id || ""}
+              onChange={(e) =>
+                handleChange({
+                  target: {
+                    name: "laboratory",
+                    value: {
+                      id: Number(e.target.value),
+                    },
+                  },
+                })
+              }
               required
-            />
+            >
+              <option value="">Select Laboratory</option>
+
+              {laboratories.map((lab) => (
+                <option key={lab.id} value={lab.id}>
+                  {lab.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
@@ -99,6 +135,29 @@ function EquipmentForm({
               value={formData.specifications}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          <div className="form-group full-width">
+            <label>Description</label>
+
+            <textarea
+              rows="4"
+              name="description"
+              placeholder="Enter equipment description..."
+              value={formData.description || ""}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group full-width">
+            <label>Equipment Image</label>
+
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
             />
           </div>
 

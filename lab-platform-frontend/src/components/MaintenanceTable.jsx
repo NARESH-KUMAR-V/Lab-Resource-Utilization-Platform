@@ -3,20 +3,31 @@ import "./Table.css";
 
 function MaintenanceTable({
   maintenanceRecords,
+  startMaintenance,
   completeMaintenance,
+  cancelMaintenance,
 }) {
 
   const [search, setSearch] = useState("");
 
- const filteredRecords = maintenanceRecords.filter((record) => {
-  console.log(record.equipment);
-  return record.equipment?.name
-    ?.toLowerCase()
-    .includes(search.toLowerCase());
-});
+  const filteredRecords = maintenanceRecords.filter((record) =>
+    record.equipment?.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
-  console.log("Maintenance Records:", maintenanceRecords);
-console.log("Filtered Records:", filteredRecords);
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "COMPLETED":
+        return "status-approved";
+      case "CANCELLED":
+        return "status-rejected";
+      case "IN_PROGRESS":
+        return "status-processing";
+      default:
+        return "status-pending";
+    }
+  };
 
   return (
 
@@ -46,9 +57,11 @@ console.log("Filtered Records:", filteredRecords);
 
             <th>Equipment</th>
 
-            <th>Date</th>
+            <th>Laboratory</th>
 
-            <th>Performed By</th>
+            <th>Technician</th>
+
+            <th>Date</th>
 
             <th>Description</th>
 
@@ -72,20 +85,18 @@ console.log("Filtered Records:", filteredRecords);
 
                 <td>{record.equipment?.name}</td>
 
-                <td>{record.maintenanceDate}</td>
+                <td>{record.equipment?.laboratory?.name}</td>
 
-                <td>{record.performedBy}</td>
+                <td>{record.technician?.name || "-"}</td>
+
+                <td>{record.maintenanceDate}</td>
 
                 <td>{record.description}</td>
 
                 <td>
 
                   <span
-                    className={`status-badge ${
-                      record.status === "COMPLETED"
-                        ? "status-approved"
-                        : "status-pending"
-                    }`}
+                    className={`status-badge ${getStatusClass(record.status)}`}
                   >
                     {record.status}
                   </span>
@@ -94,24 +105,41 @@ console.log("Filtered Records:", filteredRecords);
 
                 <td>
 
-                  {record.status === "COMPLETED" ? (
+                  {record.status === "PENDING" && (
+                    <>
+                      <button
+                        className="action-btn approve-btn"
+                        onClick={() => startMaintenance(record.id)}
+                      >
+                        ▶ Start
+                      </button>
 
-                    <button
-                      className="action-btn complete-btn"
-                      disabled
-                    >
-                      ✔ Completed
-                    </button>
+                      <button
+                        className="action-btn reject-btn"
+                        onClick={() => cancelMaintenance(record.id)}
+                      >
+                        ✖ Cancel
+                      </button>
+                    </>
+                  )}
 
-                  ) : (
-
+                  {record.status === "IN_PROGRESS" && (
                     <button
                       className="action-btn edit-btn"
                       onClick={() => completeMaintenance(record.id)}
                     >
-                      🔧 Complete
+                      ✔ Complete
                     </button>
+                  )}
 
+                  {(record.status === "COMPLETED" ||
+                    record.status === "CANCELLED") && (
+                    <button
+                      className="action-btn complete-btn"
+                      disabled
+                    >
+                      Processed
+                    </button>
                   )}
 
                 </td>
@@ -125,12 +153,10 @@ console.log("Filtered Records:", filteredRecords);
             <tr>
 
               <td
-                colSpan="7"
+                colSpan="8"
                 className="empty-table"
               >
-
                 🔧 No maintenance records found.
-
               </td>
 
             </tr>

@@ -1,90 +1,42 @@
-/* ===========================
-   GLOBAL
-=========================== */
-
-body{
-    margin:0;
-    font-family:Arial,Helvetica,sans-serif;
-    background:#eef3f8;
-}
-
-/* ===========================
-   DASHBOARD
-=========================== */
-
 .dashboard{
-
     width:100%;
-
-    min-height:100vh;
-
-    padding:35px 45px;
-
-    background:#eef3f8;
-
-    box-sizing:border-box;
-
 }
 
 .dashboard h1{
-
-    text-align:center;
-
-    color:#1565c0;
-
-    font-size:42px;
-
-    margin-bottom:8px;
-
+    font-size:34px;
     font-weight:700;
-
+    color:#222;
+    margin-bottom:5px;
 }
 
 .dashboard p{
-
-    text-align:center;
-
-    color:#666;
-
-    font-size:16px;
-
-    margin-bottom:35px;
-
+    color:#777;
+    margin-bottom:30px;
 }
 
-/* ===========================
-   SUMMARY CARDS
-=========================== */
+/* ================= CARDS ================= */
 
 .dashboard-container{
 
     display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
 
-    gap:25px;
+    gap:22px;
 
-    margin-bottom:45px;
+    margin-bottom:35px;
 
 }
 
 .dashboard-card{
 
-    background:white;
+    background:#fff;
 
     border-radius:18px;
 
-    padding:24px;
+    padding:25px;
 
-    display:flex;
-
-    align-items:center;
-
-    gap:20px;
-
-    border-left:6px solid #1976d2;
-
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
     transition:.3s;
 
@@ -94,334 +46,91 @@ body{
 
     transform:translateY(-6px);
 
-    box-shadow:0 18px 35px rgba(0,0,0,.13);
+    box-shadow:0 18px 35px rgba(0,0,0,.12);
 
 }
 
-.card-icon{
+.dashboard-card h3{
 
-    width:72px;
-
-    height:72px;
-
-    border-radius:50%;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:#e3f2fd;
-
-    color:#1976d2;
-
-    font-size:34px;
-
-}
-
-.card-content{
-
-    display:flex;
-
-    flex-direction:column;
-
-}
-
-.card-content h4{
-
-    margin:0 0 8px;
+    font-size:16px;
 
     color:#666;
 
-    font-size:18px;
+    margin-bottom:10px;
 
 }
 
-.card-content h2{
+.dashboard-card h2{
 
-    margin:0;
+    font-size:32px;
 
-    font-size:34px;
-
-    color:#111;
+    color:#222;
 
 }
 
-/* ===========================
-   CHART SECTION
-=========================== */
+/* ================= CHARTS ================= */
 
 .charts-section{
 
     display:grid;
 
-    grid-template-columns:repeat(auto-fit,minmax(480px,1fr));
+    grid-template-columns:1fr 1fr;
 
-    gap:30px;
+    gap:25px;
 
-    margin-bottom:50px;
-
-    align-items:stretch;
+    margin-bottom:30px;
 
 }
 
-.chart-card{
+.charts-section>div{
 
-    background:white;
-
-    border-radius:18px;
-
-    padding:28px;
-
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
-
-    display:flex;
-
-    flex-direction:column;
-
-    justify-content:flex-start;
-
-    min-height:460px;
-
-    overflow:hidden;
-
-}
-
-.chart-card:hover{
-
-    transform:translateY(-5px);
-
-    box-shadow:0 18px 40px rgba(0,0,0,.12);
-
-}
-
-.chart-header{
-
-    text-align:center;
-
-    margin-bottom:20px;
-
-}
-
-.chart-header h2{
-
-    margin:0;
-
-    color:#1565c0;
-
-    font-size:28px;
-
-}
-
-.chart-header p{
-
-    margin-top:8px;
-
-    color:#777;
-
-}
-
-.chart-card h2{
-
-    text-align:center;
-
-    color:#1565c0;
-
-    margin-bottom:18px;
-
-}
-
-.recharts-responsive-container{
-
-    overflow:visible !important;
-
-}
-
-
-/* ===========================
-   NOTIFICATION SECTION
-=========================== */
-
-.notification-section{
-
-    margin:20px 0 50px;
-
-}
-
-.notification-card{
-
-    background:white;
-
-    border-radius:18px;
-
-    padding:28px;
-
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
-
-    width:100%;
-
-    box-sizing:border-box;
-
-}
-
-.notification-header{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:20px;
-
-}
-
-.notification-header h2{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    color:#1565c0;
-
-    margin:0;
-
-    font-size:28px;
-
-}
-
-.notification-count{
-
-    background:#1976d2;
-
-    color:white;
-
-    padding:6px 14px;
+    background:#fff;
 
     border-radius:20px;
 
-    font-size:13px;
+    padding:25px;
 
-    font-weight:bold;
-
-}
-
-.notification-item{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:16px 0;
-
-    border-bottom:1px solid #ececec;
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
 
 }
 
-.notification-item:last-child{
+/* ================= NOTIFICATION ================= */
 
-    border-bottom:none;
+.notification-section{
 
-}
+    background:#fff;
 
-.notification-content{
+    border-radius:20px;
 
-    flex:1;
+    padding:25px;
 
-}
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
 
-.notification-content p{
-
-    margin:0 0 6px;
-
-    color:#333;
-
-    font-weight:500;
-
-    line-height:1.5;
+    margin-bottom:30px;
 
 }
 
-.notification-content small{
-
-    color:#888;
-
-}
-
-.notification-unread{
-
-    background:#f8fbff;
-
-    border-left:4px solid #1976d2;
-
-    padding-left:14px;
-
-}
-
-.notification-dot{
-
-    width:12px;
-
-    height:12px;
-
-    border-radius:50%;
-
-    background:#1976d2;
-
-    margin-left:15px;
-
-}
-
-.notification-empty{
-
-    text-align:center;
-
-    padding:30px;
-
-    color:#888;
-
-    font-style:italic;
-
-}
-
-/* ===========================
-   QUICK ACCESS CARDS
-=========================== */
+/* ================= QUICK ACTIONS ================= */
 
 .cards{
 
-    display:flex;
+    display:grid;
 
-    justify-content:center;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
 
-    gap:30px;
-
-    flex-wrap:wrap;
-
-    margin-top:10px;
-
-    margin-bottom:40px;
+    gap:25px;
 
 }
 
 .card{
 
-    width:400px;
+    background:#fff;
 
-    background:white;
-
-    border-radius:18px;
+    border-radius:20px;
 
     padding:30px;
 
-    text-align:center;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
+    box-shadow:0 10px 20px rgba(0,0,0,.08);
 
     transition:.3s;
 
@@ -429,15 +138,13 @@ body{
 
 .card:hover{
 
-    transform:translateY(-6px);
-
-    box-shadow:0 15px 35px rgba(0,0,0,.12);
+    transform:translateY(-5px);
 
 }
 
 .card h2{
 
-    color:#1976d2;
+    color:#222;
 
     margin-bottom:15px;
 
@@ -445,88 +152,70 @@ body{
 
 .card p{
 
-    color:#666;
+    color:#777;
 
-    line-height:1.6;
+    margin-bottom:20px;
 
 }
 
 .card button{
 
-    margin-top:22px;
-
-    padding:12px 30px;
-
-    background:#1976d2;
+    background:#6c63ff;
 
     color:white;
 
     border:none;
 
-    border-radius:8px;
+    padding:12px 22px;
+
+    border-radius:10px;
 
     cursor:pointer;
 
     font-size:15px;
 
-    font-weight:600;
+    transition:.3s;
 
 }
 
 .card button:hover{
 
-    background:#1565c0;
+    background:#564df3;
 
 }
 
-/* ===========================
-   RESPONSIVE
-=========================== */
+/* ================= RESPONSIVE ================= */
 
-@media(max-width:1100px){
+@media(max-width:900px){
 
-    .charts-section{
+.charts-section{
 
-        grid-template-columns:1fr;
-
-    }
+    grid-template-columns:1fr;
 
 }
 
-@media(max-width:768px){
+}
 
-    .dashboard{
+.chart-card{
 
-        padding:20px;
+    background:white;
 
-    }
+    border-radius:20px;
 
-    .dashboard h1{
+    padding:25px;
 
-        font-size:30px;
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
 
-    }
+}
 
-    .dashboard-container{
+.chart-card h2{
 
-        grid-template-columns:1fr;
+    margin-bottom:25px;
 
-    }
+    color:#222;
 
-    .cards{
+    font-size:24px;
 
-        flex-direction:column;
-
-        align-items:center;
-
-    }
-
-    .card{
-
-        width:100%;
-
-        max-width:450px;
-
-    }
+    font-weight:700;
 
 }

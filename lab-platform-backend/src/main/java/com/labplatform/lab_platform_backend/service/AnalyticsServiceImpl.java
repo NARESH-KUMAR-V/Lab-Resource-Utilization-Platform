@@ -1,7 +1,9 @@
 package com.labplatform.lab_platform_backend.service;
 
 import com.labplatform.lab_platform_backend.dto.AnalyticsDashboardDTO;
+import com.labplatform.lab_platform_backend.entity.BookingStatus;
 import com.labplatform.lab_platform_backend.entity.EquipmentStatus;
+import com.labplatform.lab_platform_backend.entity.MaintenanceStatus;
 import com.labplatform.lab_platform_backend.repository.BookingRepository;
 import com.labplatform.lab_platform_backend.repository.EquipmentRepository;
 import com.labplatform.lab_platform_backend.repository.MaintenanceRepository;
@@ -37,51 +39,123 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     }
 
     @Override
-    public AnalyticsDashboardDTO getDashboardAnalytics() {
+    public AnalyticsDashboardDTO getDashboardAnalytics(String userEmail) {
 
         AnalyticsDashboardDTO dashboard = new AnalyticsDashboardDTO();
 
         // Equipment
         dashboard.setTotalEquipment(equipmentRepository.count());
+
         dashboard.setAvailableEquipment(
                 equipmentRepository.countByStatus(EquipmentStatus.AVAILABLE));
+
         dashboard.setBookedEquipment(
                 equipmentRepository.countByStatus(EquipmentStatus.BOOKED));
+
         dashboard.setMaintenanceEquipment(
-                equipmentRepository.countByStatus(EquipmentStatus.UNDER_MAINTENANCE));
+                equipmentRepository.countByStatus(
+                        EquipmentStatus.UNDER_MAINTENANCE));
 
         // Booking
         dashboard.setTotalBookings(bookingRepository.count());
+
         dashboard.setApprovedBookings(
-                bookingRepository.countByStatus("APPROVED"));
+                bookingRepository.countByStatus(BookingStatus.APPROVED));
+
         dashboard.setPendingBookings(
-                bookingRepository.countByStatus("PENDING"));
+                bookingRepository.countByStatus(BookingStatus.PENDING));
+
         dashboard.setRejectedBookings(
-                bookingRepository.countByStatus("REJECTED"));
+                bookingRepository.countByStatus(BookingStatus.REJECTED));
 
         // Sharing
         dashboard.setTotalSharingRequests(sharingRequestRepository.count());
+
         dashboard.setApprovedSharingRequests(
                 sharingRequestRepository.countByStatus("APPROVED"));
+
         dashboard.setPendingSharingRequests(
                 sharingRequestRepository.countByStatus("PENDING"));
+
         dashboard.setRejectedSharingRequests(
                 sharingRequestRepository.countByStatus("REJECTED"));
 
         // Maintenance
         dashboard.setTotalMaintenanceRecords(maintenanceRepository.count());
+
         dashboard.setCompletedMaintenance(
-                maintenanceRepository.countByStatus("COMPLETED"));
+                maintenanceRepository.countByStatus(
+                        MaintenanceStatus.COMPLETED));
+
         dashboard.setInProgressMaintenance(
-                maintenanceRepository.countByStatus("IN_PROGRESS"));
+                maintenanceRepository.countByStatus(
+                        MaintenanceStatus.IN_PROGRESS));
 
         // Notifications
         dashboard.setUnreadNotifications(
-                notificationRepository.countByIsReadFalse());
+                notificationRepository.countByUserEmailAndIsReadFalse(userEmail));
 
         // Utilization
+        Double hours = utilizationRepository.getTotalUtilizationHours();
+
         dashboard.setTotalUtilizationHours(
-                utilizationRepository.getTotalUtilizationHours());
+                hours == null ? 0.0 : hours);
+
+        return dashboard;
+    }
+
+    @Override
+    public AnalyticsDashboardDTO getMyDashboardAnalytics(String userEmail) {
+
+        AnalyticsDashboardDTO dashboard = new AnalyticsDashboardDTO();
+
+        // Equipment
+        dashboard.setTotalEquipment(equipmentRepository.count());
+
+        dashboard.setAvailableEquipment(
+                equipmentRepository.countByStatus(EquipmentStatus.AVAILABLE));
+
+        dashboard.setBookedEquipment(
+                equipmentRepository.countByStatus(EquipmentStatus.BOOKED));
+
+        dashboard.setMaintenanceEquipment(
+                equipmentRepository.countByStatus(
+                        EquipmentStatus.UNDER_MAINTENANCE));
+
+        // My Bookings
+        dashboard.setTotalBookings(
+                bookingRepository.countByUserEmail(userEmail));
+
+        dashboard.setApprovedBookings(
+                bookingRepository.countByUserEmailAndStatus(
+                        userEmail,
+                        BookingStatus.APPROVED));
+
+        dashboard.setPendingBookings(
+                bookingRepository.countByUserEmailAndStatus(
+                        userEmail,
+                        BookingStatus.PENDING));
+
+        dashboard.setRejectedBookings(
+                bookingRepository.countByUserEmailAndStatus(
+                        userEmail,
+                        BookingStatus.REJECTED));
+
+        // Notifications
+        dashboard.setUnreadNotifications(
+                notificationRepository.countByUserEmailAndIsReadFalse(userEmail));
+
+        // Researchers don't need organization-wide values
+        dashboard.setTotalSharingRequests(0);
+        dashboard.setApprovedSharingRequests(0);
+        dashboard.setPendingSharingRequests(0);
+        dashboard.setRejectedSharingRequests(0);
+
+        dashboard.setTotalMaintenanceRecords(0);
+        dashboard.setCompletedMaintenance(0);
+        dashboard.setInProgressMaintenance(0);
+
+        dashboard.setTotalUtilizationHours(0.0);
 
         return dashboard;
     }

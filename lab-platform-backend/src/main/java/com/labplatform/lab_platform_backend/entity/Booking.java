@@ -15,16 +15,29 @@ public class Booking {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "equipment_id")
+    @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private LocalDate bookingDate;
+    @Column(nullable = false)
+    private LocalDate startDate;
 
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(length = 500)
     private String purpose;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status = BookingStatus.PENDING;
+
+    @Column(nullable = false)
+    private Integer waitingPosition = 0;
+
+    @Column(nullable = false)
+    private Long utilizationCost = 0L;
 }

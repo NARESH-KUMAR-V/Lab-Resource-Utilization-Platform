@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EquipmentService {
 
-    List<Equipment> getAllEquipment();
+    List<Equipment> getAllEquipment(String email);
 
     Equipment getEquipmentById(Long id);
 
@@ -21,4 +21,6 @@ public interface EquipmentService {
     List<Equipment> getSharedEquipment();
 
     Equipment shareEquipment(Long id);
+
+    List<Equipment> getEquipmentByLaboratory(Long laboratoryId);
 }

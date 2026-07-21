@@ -3,14 +3,14 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
+  Legend
 } from "recharts";
 
 const COLORS = [
-  "#4CAF50",
-  "#2196F3",
-  "#FF9800",
+  "#6C63FF",
+  "#00C49F",
+  "#FF8042"
 ];
 
 function EquipmentPieChart({ stats }) {
@@ -18,33 +18,27 @@ function EquipmentPieChart({ stats }) {
   const data = [
     {
       name: "Available",
-      value: stats.availableEquipment,
+      value: stats.availableEquipment
     },
     {
       name: "Booked",
-      value: stats.bookedEquipment,
+      value: stats.bookedEquipment
     },
     {
       name: "Maintenance",
-      value: stats.maintenanceEquipment,
-    },
+      value: stats.maintenanceEquipment
+    }
   ];
 
-  const total =
-    stats.availableEquipment +
-    stats.bookedEquipment +
-    stats.maintenanceEquipment;
-
   return (
-
     <div className="chart-card">
 
-      <div className="chart-header">
-        <h2>Equipment Status</h2>
-        <p>Total Equipment: {total}</p>
-      </div>
+      <h2>Equipment Status</h2>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer
+        width="100%"
+        height={320}
+      >
 
         <PieChart>
 
@@ -52,42 +46,32 @@ function EquipmentPieChart({ stats }) {
             data={data}
             dataKey="value"
             nameKey="name"
-            cx="50%"
-            cy="45%"
+            outerRadius={110}
             innerRadius={55}
-            outerRadius={95}
-            paddingAngle={3}
-            label={({ percent }) =>
-              `${(percent * 100).toFixed(0)}%`
-            }
+            paddingAngle={5}
           >
 
-            {data.map((entry, index) => (
-
-              <Cell
-                key={index}
-                fill={COLORS[index]}
-              />
-
-            ))}
+            {
+              data.map((entry, index) => (
+                <Cell
+                  key={index}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))
+            }
 
           </Pie>
 
           <Tooltip />
 
-          <Legend
-            verticalAlign="bottom"
-            height={35}
-          />
+          <Legend />
 
         </PieChart>
 
       </ResponsiveContainer>
 
     </div>
-
   );
-
 }
 
 export default EquipmentPieChart;

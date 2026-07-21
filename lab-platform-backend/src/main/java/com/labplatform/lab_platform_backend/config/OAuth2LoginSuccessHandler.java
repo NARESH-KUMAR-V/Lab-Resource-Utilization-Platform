@@ -44,6 +44,23 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         String token = jwtService.generateToken(user);
 
-        response.sendRedirect("http://localhost:5173/oauth-success?token=" + token);
+        Long institutionId = user.getInstitution() != null
+                ? user.getInstitution().getId()
+                : null;
+
+        Long laboratoryId = user.getLaboratory() != null
+                ? user.getLaboratory().getId()
+                : null;
+
+        response.sendRedirect(
+                "http://localhost:5173/oauth-success"
+                        + "?token=" + token
+                        + "&id=" + user.getId()
+                        + "&name=" + java.net.URLEncoder.encode(user.getName(), java.nio.charset.StandardCharsets.UTF_8)
+                        + "&email=" + java.net.URLEncoder.encode(user.getEmail(), java.nio.charset.StandardCharsets.UTF_8)
+                        + "&role=" + user.getRole().name()
+                        + "&institutionId=" + (institutionId != null ? institutionId : "")
+                        + "&laboratoryId=" + (laboratoryId != null ? laboratoryId : "")
+        );
     }
 }

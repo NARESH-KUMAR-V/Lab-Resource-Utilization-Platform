@@ -8,6 +8,7 @@ import com.labplatform.lab_platform_backend.service.UserService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import com.labplatform.lab_platform_backend.dto.LoginResponse;
 
 import java.util.Map;
 
@@ -35,23 +36,28 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginRequest request) {
+    public LoginResponse login(@RequestBody LoginRequest request) {
 
         authenticationManager.authenticate(
-
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
-
         );
 
         User user = userService.findByEmail(request.getEmail());
 
         String token = jwtService.generateToken(user);
 
-        return Map.of("token", token);
-
+        return new LoginResponse(
+                token,
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getInstitution() != null ? user.getInstitution().getId() : null,
+                user.getLaboratory() != null ? user.getLaboratory().getId() : null
+        );
     }
 
 }

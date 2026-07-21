@@ -9,60 +9,63 @@ function MaintenancePage() {
 
   const [maintenanceRecords, setMaintenanceRecords] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
 
   const [formData, setFormData] = useState({
     equipmentId: "",
+    technicianId: "",
     maintenanceDate: "",
-    description: "",
-    performedBy: "",
-    status: "PENDING",
+    description: ""
   });
 
   useEffect(() => {
     loadMaintenance();
     loadEquipment();
+    loadTechnicians();
   }, []);
 
   const loadMaintenance = async () => {
-  try {
-    const response = await api.get("/maintenance");
-
-    console.log("Maintenance API:", response.data);
-
-    setMaintenanceRecords(response.data);
-  } catch (error) {
-    console.error(error);
-  }
-};
+    try {
+      const response = await api.get("/maintenance");
+      setMaintenanceRecords(response.data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load maintenance records.");
+    }
+  };
 
   const loadEquipment = async () => {
-
     try {
-
       const response = await api.get("/equipment");
-
       setEquipmentList(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadTechnicians = async () => {
+    try {
+      const response = await api.get("/users");
+
+      const techs = response.data.filter(
+        user => user.role === "LAB_TECHNICIAN"
+      );
+
+      setTechnicians(techs);
 
     } catch (error) {
-
       console.error(error);
-
-      toast.error("Failed to load equipment.");
-
     }
-
   };
 
-  const handleChange = (e) => {
-
+  const handleChange = e => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: e.target.value
     });
-
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
 
     e.preventDefault();
 
@@ -71,29 +74,26 @@ function MaintenancePage() {
       await api.post("/maintenance", {
 
         equipment: {
-          id: formData.equipmentId,
+          id: formData.equipmentId
         },
+
+        technician: formData.technicianId
+          ? { id: formData.technicianId }
+          : null,
 
         maintenanceDate: formData.maintenanceDate,
 
-        description: formData.description,
-
-        performedBy: formData.performedBy,
-
-        status: formData.status,
+        description: formData.description
 
       });
 
-      toast.success("Maintenance record created successfully!");
+      toast.success("Maintenance request created.");
 
       setFormData({
-
         equipmentId: "",
+        technicianId: "",
         maintenanceDate: "",
-        description: "",
-        performedBy: "",
-        status: "PENDING",
-
+        description: ""
       });
 
       loadMaintenance();
@@ -102,19 +102,39 @@ function MaintenancePage() {
 
       console.error(error);
 
-      toast.error("Failed to create maintenance record.");
+      toast.error("Failed to create maintenance.");
 
     }
 
   };
 
-  const completeMaintenance = async (id) => {
+  const startMaintenance = async id => {
+
+    try {
+
+      await api.put(`/maintenance/${id}/start`);
+
+      toast.success("Maintenance started.");
+
+      loadMaintenance();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to start maintenance.");
+
+    }
+
+  };
+
+  const completeMaintenance = async id => {
 
     try {
 
       await api.put(`/maintenance/${id}/complete`);
 
-      toast.success("Maintenance marked as completed.");
+      toast.success("Maintenance completed.");
 
       loadMaintenance();
 
@@ -128,17 +148,41 @@ function MaintenancePage() {
 
   };
 
+  const cancelMaintenance = async id => {
+
+    try {
+
+      await api.put(`/maintenance/${id}/cancel`);
+
+      toast.success("Maintenance cancelled.");
+
+      loadMaintenance();
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error("Failed to cancel maintenance.");
+
+    }
+
+  };
+
   const stats = {
 
     total: maintenanceRecords.length,
 
     pending: maintenanceRecords.filter(
-      (m) => m.status === "PENDING"
+      m => m.status === "PENDING"
+    ).length,
+
+    progress: maintenanceRecords.filter(
+      m => m.status === "IN_PROGRESS"
     ).length,
 
     completed: maintenanceRecords.filter(
-      (m) => m.status === "COMPLETED"
-    ).length,
+      m => m.status === "COMPLETED"
+    ).length
 
   };
 
@@ -152,14 +196,14 @@ function MaintenancePage() {
         <h1>Maintenance Management</h1>
 
         <p>
-          Track, schedule and monitor equipment maintenance records.
+          Track and manage equipment maintenance.
         </p>
 
         <div className="dashboard-container">
 
           <div className="dashboard-card">
             <div className="card-content">
-              <h4>Total Records</h4>
+              <h4>Total</h4>
               <h2>{stats.total}</h2>
             </div>
           </div>
@@ -168,6 +212,13 @@ function MaintenancePage() {
             <div className="card-content">
               <h4>Pending</h4>
               <h2>{stats.pending}</h2>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="card-content">
+              <h4>In Progress</h4>
+              <h2>{stats.progress}</h2>
             </div>
           </div>
 
@@ -182,6 +233,7 @@ function MaintenancePage() {
 
         <MaintenanceForm
           equipmentList={equipmentList}
+          technicians={technicians}
           formData={formData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
@@ -189,7 +241,9 @@ function MaintenancePage() {
 
         <MaintenanceTable
           maintenanceRecords={maintenanceRecords}
+          startMaintenance={startMaintenance}
           completeMaintenance={completeMaintenance}
+          cancelMaintenance={cancelMaintenance}
         />
 
       </div>

@@ -27,7 +27,7 @@ function LoginPage() {
         password,
       });
 
-      login(response.data.token);
+      login(response.data);
 
       toast.success("Login successful!");
 

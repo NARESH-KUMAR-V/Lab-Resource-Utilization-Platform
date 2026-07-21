@@ -10,7 +10,10 @@ import EquipmentPage from "./pages/EquipmentPage";
 import BookingPage from "./pages/BookingPage";
 import MaintenancePage from "./pages/MaintenancePage";
 import SharingRequestPage from "./pages/SharingRequestPage";
-import NotificationPage from "./pages/NotificationPage";
+import NotificationPage from "./pages/NotificationsPage";
+import UsersPage from "./pages/UsersPage";
+import LaboratoryPage from "./pages/LaboratoryPage";
+import InstitutionPage from "./pages/InstitutionPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -19,13 +22,11 @@ function App() {
     <>
       <Routes>
 
-        {/* Default Route */}
         <Route
           path="/"
           element={<Navigate to="/login" replace />}
         />
 
-        {/* Public Routes */}
         <Route
           path="/login"
           element={<LoginPage />}
@@ -40,8 +41,6 @@ function App() {
           path="/oauth-success"
           element={<OAuthSuccessPage />}
         />
-
-        {/* Protected Routes */}
 
         <Route
           path="/dashboard"
@@ -64,7 +63,15 @@ function App() {
         <Route
           path="/bookings"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "RESEARCHER",
+                "LAB_MANAGER",
+                "DEPARTMENT_HEAD",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
               <BookingPage />
             </ProtectedRoute>
           }
@@ -73,7 +80,14 @@ function App() {
         <Route
           path="/maintenance"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "LAB_TECHNICIAN",
+                "LAB_MANAGER",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
               <MaintenancePage />
             </ProtectedRoute>
           }
@@ -82,7 +96,15 @@ function App() {
         <Route
           path="/sharing-requests"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={[
+                "RESEARCHER",
+                "LAB_MANAGER",
+                "DEPARTMENT_HEAD",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
               <SharingRequestPage />
             </ProtectedRoute>
           }
@@ -97,9 +119,49 @@ function App() {
           }
         />
 
-      </Routes>
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "SYSTEM_ADMIN",
+                "INSTITUTION_ADMIN",
+                "DEPARTMENT_HEAD"
+              ]}
+            >
+              <UsersPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* Toast Notifications */}
+        <Route
+          path="/laboratories"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "SYSTEM_ADMIN",
+                "INSTITUTION_ADMIN"
+              ]}
+            >
+              <LaboratoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/institutions"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "SYSTEM_ADMIN"
+              ]}
+            >
+              <InstitutionPage />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
 
       <ToastContainer
         position="top-right"
@@ -111,7 +173,6 @@ function App() {
         draggable
         theme="colored"
       />
-
     </>
   );
 }

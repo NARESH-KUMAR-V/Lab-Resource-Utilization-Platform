@@ -14,7 +14,15 @@ public interface MaintenanceService {
 
     Maintenance updateMaintenance(Long id, Maintenance maintenance);
 
-    void deleteMaintenance(Long id);
+    Maintenance startMaintenance(Long id);
 
     Maintenance completeMaintenance(Long id);
+
+    Maintenance cancelMaintenance(Long id);
+
+    List<Maintenance> getPendingMaintenance();
+
+    List<Maintenance> getMyMaintenance(String technicianEmail);
+
+    void deleteMaintenance(Long id);
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { FaPlus, FaSearch, FaSyncAlt, FaBoxes } from "react-icons/fa";
 import api from "../api/axios";
+import Layout from "../components/Layout";
 import EquipmentForm from "../components/EquipmentForm";
 import EquipmentTable from "../components/EquipmentTable";
-import Navbar from "../components/Navbar";
 import "./EquipmentPage.css";
 
 function EquipmentPage() {
@@ -11,14 +12,27 @@ function EquipmentPage() {
   const [equipment, setEquipment] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [editId, setEditId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const role = localStorage.getItem("role");
+
+  const canManageEquipment =
+    role === "LAB_MANAGER" ||
+    role === "INSTITUTION_ADMIN" ||
+    role === "SYSTEM_ADMIN";
 
   const [formData, setFormData] = useState({
     name: "",
     category: "",
     specifications: "",
+    description: "",
+    costPerDay: "",
+    image: null,
+    imageUrl: "",
     status: "AVAILABLE",
-    department: "",
-    institution: "",
+    laboratory: {
+      id: ""
+    }
   });
 
   useEffect(() => {
@@ -26,49 +40,76 @@ function EquipmentPage() {
   }, []);
 
   const fetchEquipment = async () => {
-
     try {
-
       const response = await api.get("/equipment");
-
       setEquipment(response.data);
-
     } catch (error) {
-
       console.error(error);
-
       toast.error("Failed to load equipment.");
-
     }
-
   };
 
   const searchEquipment = async () => {
+    if (!searchText.trim()) {
+      fetchEquipment();
+      return;
+    }
 
     try {
-
       const response = await api.get(
         `/equipment/search?name=${searchText}`
       );
-
       setEquipment(response.data);
-
     } catch (error) {
-
       console.error(error);
-
       toast.error("Search failed.");
-
     }
-
   };
 
   const handleChange = (e) => {
 
+    const { name, value, files } = e.target;
+
+    if (name === "image") {
+      setFormData({
+        ...formData,
+        image: files[0]
+      });
+      return;
+    }
+
+    if (name === "laboratory") {
+      setFormData({
+        ...formData,
+        laboratory: value
+      });
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value
     });
+
+  };
+
+  const resetForm = () => {
+
+    setFormData({
+      name: "",
+      category: "",
+      specifications: "",
+      description: "",
+      costPerDay: "",
+      image: null,
+      imageUrl: "",
+      status: "AVAILABLE",
+      laboratory: {
+        id: ""
+      }
+    });
+
+    setEditId(null);
 
   };
 
@@ -78,32 +119,52 @@ function EquipmentPage() {
 
     try {
 
+      let imageUrl = formData.imageUrl;
+
+      if (formData.image) {
+
+        const imageData = new FormData();
+        imageData.append("file", formData.image);
+
+        const uploadResponse = await api.post(
+          "/equipment/upload",
+          imageData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          }
+        );
+
+        imageUrl = uploadResponse.data;
+      }
+
+      const equipmentData = {
+        ...formData,
+        imageUrl
+      };
+
+      delete equipmentData.image;
+
       if (editId) {
 
-        await api.put(`/equipment/${editId}`, formData);
+        await api.put(`/equipment/${editId}`, equipmentData);
 
         toast.success("Equipment updated successfully!");
 
       } else {
 
-        await api.post("/equipment", formData);
+        await api.post("/equipment", equipmentData);
 
         toast.success("Equipment added successfully!");
 
       }
 
-      setFormData({
-        name: "",
-        category: "",
-        specifications: "",
-        status: "AVAILABLE",
-        department: "",
-        institution: "",
-      });
-
-      setEditId(null);
-
       fetchEquipment();
+
+      resetForm();
+
+      setShowForm(false);
 
     } catch (error) {
 
@@ -117,11 +178,7 @@ function EquipmentPage() {
 
   const handleDelete = async (id) => {
 
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this equipment?"
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this equipment?")) return;
 
     try {
 
@@ -135,7 +192,7 @@ function EquipmentPage() {
 
       console.error(error);
 
-      toast.error("Failed to delete equipment.");
+      toast.error("Delete failed.");
 
     }
 
@@ -145,60 +202,109 @@ function EquipmentPage() {
 
     setEditId(item.id);
 
-    setFormData({
+    setShowForm(true);
 
+    setFormData({
       name: item.name,
       category: item.category,
       specifications: item.specifications,
+      description: item.description || "",
+      costPerDay: item.costPerDay,
+      image: null,
+      imageUrl: item.imageUrl || "",
       status: item.status,
-      department: item.department,
-      institution: item.institution,
+      laboratory: item.laboratory
+    });
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
     });
 
   };
 
   return (
-
-    <>
-      <Navbar />
+    <Layout>
 
       <div className="equipment-page">
 
-        <h2>Equipment Inventory</h2>
+        <div className="page-header">
 
-        <div className="search-container">
+          <div>
 
-          <input
-            type="text"
-            placeholder="🔍 Search equipment..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="search-input"
-          />
+            <h1>
+              <FaBoxes />
+              Equipment Management
+            </h1>
+
+            <p>
+              Manage all laboratory equipment from one place.
+            </p>
+
+          </div>
+
+          {canManageEquipment && (
+
+            <button
+              className="add-equipment-btn"
+              onClick={() => {
+                resetForm();
+                setShowForm(!showForm);
+              }}
+            >
+              <FaPlus />
+              {showForm ? "Close Form" : "Add Equipment"}
+            </button>
+
+          )}
+
+        </div>
+
+        <div className="equipment-toolbar">
+
+          <div className="search-wrapper">
+
+            <FaSearch />
+
+            <input
+              type="text"
+              placeholder="Search equipment..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+
+          </div>
 
           <button
-            className="search-btn"
+            className="toolbar-btn"
             onClick={searchEquipment}
           >
             Search
           </button>
 
           <button
-            className="show-btn"
-            onClick={fetchEquipment}
+            className="toolbar-btn secondary"
+            onClick={() => {
+              setSearchText("");
+              fetchEquipment();
+            }}
           >
-            Show All
+            <FaSyncAlt />
+            Refresh
           </button>
 
         </div>
 
-        <EquipmentForm
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          editId={editId}
-        />
+        {showForm && canManageEquipment && (
+
+          <EquipmentForm
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            editId={editId}
+          />
+
+        )}
 
         <EquipmentTable
           equipment={equipment}
@@ -208,8 +314,7 @@ function EquipmentPage() {
 
       </div>
 
-    </>
-
+    </Layout>
   );
 
 }

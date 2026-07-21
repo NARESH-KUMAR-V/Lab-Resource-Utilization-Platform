@@ -1,15 +1,11 @@
 package com.labplatform.lab_platform_backend.service;
 
 import com.labplatform.lab_platform_backend.dto.BookingRequest;
-import com.labplatform.lab_platform_backend.entity.Booking;
-import com.labplatform.lab_platform_backend.entity.Equipment;
-import com.labplatform.lab_platform_backend.entity.EquipmentStatus;
-import com.labplatform.lab_platform_backend.entity.User;
+import com.labplatform.lab_platform_backend.entity.*;
 import com.labplatform.lab_platform_backend.repository.BookingRepository;
 import com.labplatform.lab_platform_backend.repository.EquipmentRepository;
 import com.labplatform.lab_platform_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import com.labplatform.lab_platform_backend.service.UtilizationService;
 
 import java.util.List;
 
@@ -22,11 +18,12 @@ public class BookingServiceImpl implements BookingService {
     private final UtilizationService utilizationService;
     private final NotificationService notificationService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository,
-                              EquipmentRepository equipmentRepository,
-                              UserRepository userRepository,
-                              UtilizationService utilizationService,
-                              NotificationService notificationService) {
+    public BookingServiceImpl(
+            BookingRepository bookingRepository,
+            EquipmentRepository equipmentRepository,
+            UserRepository userRepository,
+            UtilizationService utilizationService,
+            NotificationService notificationService) {
 
         this.bookingRepository = bookingRepository;
         this.equipmentRepository = equipmentRepository;
@@ -55,19 +52,87 @@ public class BookingServiceImpl implements BookingService {
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new RuntimeException("Equipment not found"));
 
+        if (equipment.getStatus() != EquipmentStatus.AVAILABLE &&
+                equipment.getStatus() != EquipmentStatus.BOOKED) {
+
+            throw new RuntimeException(
+                    "Equipment is currently "
+                            + equipment.getStatus()
+                            + " and cannot be booked."
+            );
+        }
+
+        if (request.getEndDate().isBefore(request.getStartDate())) {
+            throw new RuntimeException("End date cannot be before start date.");
+        }
+
+        List<Booking> overlappingBookings =
+                bookingRepository
+                        .findByEquipmentIdAndStatusInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                equipment.getId(),
+                                List.of(
+                                        BookingStatus.APPROVED,
+                                        BookingStatus.WAITING
+                                ),
+                                request.getEndDate(),
+                                request.getStartDate()
+                        );
+
         Booking booking = new Booking();
+
         booking.setUser(user);
         booking.setEquipment(equipment);
-        booking.setBookingDate(request.getBookingDate());
+        booking.setStartDate(request.getStartDate());
+        booking.setEndDate(request.getEndDate());
         booking.setPurpose(request.getPurpose());
-        booking.setStatus("PENDING");
 
-        return bookingRepository.save(booking);
-    }
+        long days =
+                request.getStartDate()
+                        .until(request.getEndDate())
+                        .getDays() + 1;
 
-    @Override
-    public List<Booking> getMyBookings(String userEmail) {
-        return bookingRepository.findByUserEmail(userEmail);
+        booking.setUtilizationCost(
+                Math.round(days * equipment.getCostPerDay())
+        );
+
+        if (!overlappingBookings.isEmpty()) {
+
+            long waitingCount =
+                    bookingRepository.countByEquipmentIdAndStatus(
+                            equipment.getId(),
+                            BookingStatus.WAITING
+                    );
+
+            booking.setStatus(BookingStatus.WAITING);
+            booking.setWaitingPosition((int) waitingCount + 1);
+
+        } else {
+
+            booking.setStatus(BookingStatus.PENDING);
+            booking.setWaitingPosition(0);
+
+        }
+
+        Booking savedBooking = bookingRepository.save(booking);
+
+        List<User> managers = userRepository.findByRole(Role.LAB_MANAGER);
+
+        for (User manager : managers) {
+
+            notificationService.createNotification(
+                    manager,
+                    booking.getStatus() == BookingStatus.WAITING
+                            ? "A new booking has been added to the waiting list for "
+                              + equipment.getName() + "."
+                            : "New booking request from "
+                              + user.getName()
+                              + " for "
+                              + equipment.getName() + "."
+            );
+
+        }
+
+        return savedBooking;
     }
 
     @Override
@@ -75,24 +140,38 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = getBookingById(id);
 
-        booking.setStatus("APPROVED");
+        booking.setStatus(BookingStatus.APPROVED);
+        booking.setWaitingPosition(0);
 
         Equipment equipment = booking.getEquipment();
         equipment.setStatus(EquipmentStatus.BOOKED);
 
         equipmentRepository.save(equipment);
 
-        // Create utilization record automatically
         utilizationService.createFromBooking(booking);
 
         notificationService.createNotification(
                 booking.getUser(),
-                "Your booking for " +
-                        booking.getEquipment().getName() +
-                        " has been approved."
+                "Your booking for "
+                        + equipment.getName()
+                        + " has been approved."
         );
 
-        return bookingRepository.save(booking);
+        Booking approvedBooking = bookingRepository.save(booking);
+
+        List<Booking> waitingBookings =
+                bookingRepository.findByEquipmentIdAndStatusOrderByWaitingPositionAsc(
+                        equipment.getId(),
+                        BookingStatus.WAITING
+                );
+
+        for (int i = 0; i < waitingBookings.size(); i++) {
+            waitingBookings.get(i).setWaitingPosition(i + 1);
+        }
+
+        bookingRepository.saveAll(waitingBookings);
+
+        return approvedBooking;
     }
 
     @Override
@@ -100,12 +179,19 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = getBookingById(id);
 
-        booking.setStatus("REJECTED");
+        booking.setStatus(BookingStatus.REJECTED);
 
         Equipment equipment = booking.getEquipment();
         equipment.setStatus(EquipmentStatus.AVAILABLE);
 
         equipmentRepository.save(equipment);
+
+        notificationService.createNotification(
+                booking.getUser(),
+                "Your booking for "
+                        + equipment.getName()
+                        + " has been rejected."
+        );
 
         return bookingRepository.save(booking);
     }
@@ -115,27 +201,82 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = getBookingById(id);
 
-        booking.setStatus("COMPLETED");
+        booking.setStatus(BookingStatus.COMPLETED);
 
         Equipment equipment = booking.getEquipment();
         equipment.setStatus(EquipmentStatus.AVAILABLE);
 
         equipmentRepository.save(equipment);
 
-        // Complete utilization record
         utilizationService.completeUtilization(booking);
 
-        return bookingRepository.save(booking);
+        notificationService.createNotification(
+                booking.getUser(),
+                "Your booking for "
+                        + equipment.getName()
+                        + " has been completed."
+        );
+
+        Booking completedBooking = bookingRepository.save(booking);
+
+        List<Booking> waitingBookings =
+                bookingRepository.findByEquipmentIdAndStatusOrderByWaitingPositionAsc(
+                        equipment.getId(),
+                        BookingStatus.WAITING
+                );
+
+        if (!waitingBookings.isEmpty()) {
+
+            Booking nextBooking = waitingBookings.get(0);
+
+            nextBooking.setStatus(BookingStatus.PENDING);
+            nextBooking.setWaitingPosition(0);
+
+            bookingRepository.save(nextBooking);
+
+            notificationService.createNotification(
+                    nextBooking.getUser(),
+                    "Your booking for "
+                            + equipment.getName()
+                            + " is now pending approval. Please wait for the Lab Manager to approve it."
+            );
+
+            for (int i = 1; i < waitingBookings.size(); i++) {
+                Booking waiting = waitingBookings.get(i);
+                waiting.setWaitingPosition(i);
+                bookingRepository.save(waiting);
+            }
+        }
+
+        return completedBooking;
     }
 
     @Override
     public void deleteBooking(Long id) {
+
         Booking booking = getBookingById(id);
+
         bookingRepository.delete(booking);
+    }
+
+    @Override
+    public List<Booking> getMyBookings(String userEmail) {
+        return bookingRepository.findByUserEmail(userEmail);
     }
 
     @Override
     public List<Booking> getBookingHistory(String userEmail) {
         return bookingRepository.findByUserEmail(userEmail);
+    }
+
+    @Override
+    public List<Booking> getPendingBookings() {
+
+        return bookingRepository.findByStatusIn(
+                List.of(
+                        BookingStatus.PENDING,
+                        BookingStatus.WAITING
+                )
+        );
     }
 }

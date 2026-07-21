@@ -1,0 +1,262 @@
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: #1e1e2f;
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    box-shadow: 5px 0 18px rgba(0,0,0,.15);
+    z-index: 1000;
+}
+
+/* ===========================
+   LOGO
+=========================== */
+
+.sidebar-logo{
+    padding:28px 25px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.sidebar-logo h2{
+    margin:0;
+    color:white;
+    font-size:24px;
+    font-weight:700;
+}
+
+.sidebar-logo span{
+    color:#a7a7c2;
+    font-size:13px;
+}
+
+/* ===========================
+   USER
+=========================== */
+
+.sidebar-user{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+
+    padding:25px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+}
+
+.avatar{
+
+    width:55px;
+    height:55px;
+
+    border-radius:50%;
+
+    background:#6c63ff;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:22px;
+    font-weight:bold;
+
+}
+
+.sidebar-user h4{
+
+    margin:0;
+    font-size:16px;
+
+}
+
+.sidebar-user p{
+
+    margin-top:5px;
+    color:#b8b8d1;
+    font-size:13px;
+
+}
+
+/* ===========================
+   MENU
+=========================== */
+
+.sidebar-menu{
+
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px 12px;
+
+}
+
+.sidebar-menu a{
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+    text-decoration:none;
+
+    color:#d7d7e5;
+
+    padding:14px 18px;
+
+    margin-bottom:8px;
+
+    border-radius:12px;
+
+    transition:.25s;
+
+    font-size:15px;
+    font-weight:500;
+
+}
+
+.sidebar-menu a svg{
+
+    font-size:18px;
+    min-width:22px;
+
+}
+
+.sidebar-menu a:hover{
+
+    background:#34344f;
+    color:white;
+
+    transform:translateX(4px);
+
+}
+
+/* ACTIVE */
+
+.sidebar-menu a.active{
+
+    background:#6c63ff;
+    color:white;
+
+    box-shadow:0 8px 18px rgba(108,99,255,.35);
+
+}
+
+/* ===========================
+   FOOTER
+=========================== */
+
+.sidebar-footer{
+
+    padding:20px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+.logout-btn{
+
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:10px;
+
+    border:none;
+
+    background:#ef4444;
+
+    color:white;
+
+    padding:13px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.logout-btn:hover{
+
+    background:#dc2626;
+    transform:translateY(-2px);
+
+}
+
+/* ===========================
+   SCROLL
+=========================== */
+
+.sidebar-menu::-webkit-scrollbar{
+
+    width:5px;
+
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb{
+
+    background:#5f5f80;
+    border-radius:10px;
+
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+
+.sidebar{
+
+    width:80px;
+
+}
+
+.sidebar-logo span,
+.sidebar-user h4,
+.sidebar-user p,
+.sidebar-menu span,
+.logout-btn span{
+
+    display:none;
+
+}
+
+.sidebar-user{
+
+    justify-content:center;
+
+}
+
+.avatar{
+
+    width:48px;
+    height:48px;
+
+}
+
+.sidebar-menu a{
+
+    justify-content:center;
+    padding:16px;
+
+}
+
+}

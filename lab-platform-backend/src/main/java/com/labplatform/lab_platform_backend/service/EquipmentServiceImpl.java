@@ -1,7 +1,10 @@
 package com.labplatform.lab_platform_backend.service;
 
 import com.labplatform.lab_platform_backend.entity.Equipment;
+import com.labplatform.lab_platform_backend.entity.Role;
+import com.labplatform.lab_platform_backend.entity.User;
 import com.labplatform.lab_platform_backend.repository.EquipmentRepository;
+import com.labplatform.lab_platform_backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,14 +13,39 @@ import java.util.List;
 public class EquipmentServiceImpl implements EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
+    private final UserRepository userRepository;
 
-    public EquipmentServiceImpl(EquipmentRepository equipmentRepository) {
+    public EquipmentServiceImpl(
+            EquipmentRepository equipmentRepository,
+            UserRepository userRepository) {
+
         this.equipmentRepository = equipmentRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public List<Equipment> getAllEquipment() {
-        return equipmentRepository.findAll();
+    public List<Equipment> getAllEquipment(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Role role = user.getRole();
+
+        if (role == Role.SYSTEM_ADMIN) {
+            return equipmentRepository.findAll();
+        }
+
+        if (role == Role.INSTITUTION_ADMIN) {
+
+            return equipmentRepository.findByLaboratoryInstitutionId(
+                    user.getInstitution().getId()
+            );
+
+        }
+
+        return equipmentRepository.findByLaboratoryId(
+                user.getLaboratory().getId()
+        );
     }
 
     @Override
@@ -39,17 +67,22 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipment.setName(updatedEquipment.getName());
         equipment.setCategory(updatedEquipment.getCategory());
         equipment.setSpecifications(updatedEquipment.getSpecifications());
+        equipment.setDescription(updatedEquipment.getDescription());
+        equipment.setImageUrl(updatedEquipment.getImageUrl());
         equipment.setStatus(updatedEquipment.getStatus());
-        equipment.setDepartment(updatedEquipment.getDepartment());
-        equipment.setInstitution(updatedEquipment.getInstitution());
+        equipment.setShared(updatedEquipment.getShared());
+        equipment.setLaboratory(updatedEquipment.getLaboratory());
 
         return equipmentRepository.save(equipment);
     }
 
     @Override
     public void deleteEquipment(Long id) {
+
         Equipment equipment = getEquipmentById(id);
+
         equipmentRepository.delete(equipment);
+
     }
 
     @Override
@@ -70,5 +103,10 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipment.setShared(true);
 
         return equipmentRepository.save(equipment);
+    }
+
+    @Override
+    public List<Equipment> getEquipmentByLaboratory(Long laboratoryId) {
+        return equipmentRepository.findByLaboratoryId(laboratoryId);
     }
 }

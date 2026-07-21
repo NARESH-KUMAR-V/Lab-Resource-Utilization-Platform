@@ -2,6 +2,7 @@ import "./Form.css";
 
 function MaintenanceForm({
   equipmentList,
+  technicians,
   formData,
   handleChange,
   handleSubmit,
@@ -10,10 +11,10 @@ function MaintenanceForm({
     <div className="form-card">
 
       <div className="form-header">
-        <h2>Add Maintenance Record</h2>
+        <h2>Create Maintenance Request</h2>
         <p>
-          Record maintenance activities and keep laboratory equipment in
-          excellent condition.
+          Schedule maintenance, assign a technician, and keep laboratory
+          equipment in good condition.
         </p>
       </div>
 
@@ -33,11 +34,28 @@ function MaintenanceForm({
               <option value="">Select Equipment</option>
 
               {equipmentList.map((item) => (
-                <option
-                  key={item.id}
-                  value={item.id}
-                >
+                <option key={item.id} value={item.id}>
                   {item.name}
+                  {item.laboratory ? ` (${item.laboratory.name})` : ""}
+                </option>
+              ))}
+
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Assign Technician</label>
+
+            <select
+              name="technicianId"
+              value={formData.technicianId}
+              onChange={handleChange}
+            >
+              <option value="">Select Technician</option>
+
+              {technicians.map((tech) => (
+                <option key={tech.id} value={tech.id}>
+                  {tech.name}
                 </option>
               ))}
 
@@ -56,32 +74,6 @@ function MaintenanceForm({
             />
           </div>
 
-          <div className="form-group">
-            <label>Performed By</label>
-
-            <input
-              type="text"
-              name="performedBy"
-              value={formData.performedBy}
-              onChange={handleChange}
-              placeholder="Technician or Engineer Name"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Status</label>
-
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="PENDING">Pending</option>
-              <option value="COMPLETED">Completed</option>
-            </select>
-          </div>
-
           <div
             className="form-group"
             style={{ gridColumn: "1 / -1" }}
@@ -92,7 +84,7 @@ function MaintenanceForm({
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Example: Replaced damaged power supply, cleaned cooling fan, calibrated microscope lenses..."
+              placeholder="Describe the maintenance work to be performed..."
               required
             />
 
@@ -104,7 +96,7 @@ function MaintenanceForm({
           className="submit-btn"
           type="submit"
         >
-          🔧 Save Maintenance Record
+          🔧 Create Maintenance Request
         </button>
 
       </form>

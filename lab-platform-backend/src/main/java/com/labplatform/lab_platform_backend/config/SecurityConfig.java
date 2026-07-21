@@ -104,8 +104,16 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/oauth2/**",
-                                "/login/**"
+                                "/login/**",
+                                "/uploads/**"
                         ).permitAll()
+
+                        // Public APIs for Registration
+                        .requestMatchers(HttpMethod.GET, "/api/institutions")
+                        .permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/laboratories/institution/**")
+                        .permitAll()
 
                         // Equipment
                         .requestMatchers(HttpMethod.POST, "/api/equipment/**")
@@ -157,8 +165,18 @@ public class SecurityConfig {
                                 "SYSTEM_ADMIN"
                         )
 
-                        // Analytics
-                        .requestMatchers(HttpMethod.GET, "/api/analytics/**")
+                        // Researcher Dashboard
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/analytics/my-dashboard"
+                        )
+                        .hasRole("RESEARCHER")
+
+                        // Overall Analytics
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/analytics/dashboard"
+                        )
                         .hasAnyRole(
                                 "LAB_MANAGER",
                                 "DEPARTMENT_HEAD",

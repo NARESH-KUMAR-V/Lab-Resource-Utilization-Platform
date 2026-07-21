@@ -9,6 +9,12 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
+    // Existing
     List<Notification> findByUserEmailOrderByCreatedAtDesc(String email);
+
     long countByIsReadFalse();
+
+    // Researcher Dashboard
+    long countByUserEmailAndIsReadFalse(String email);
+
 }

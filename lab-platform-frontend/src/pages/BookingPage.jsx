@@ -1,40 +1,38 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+import {
+  FaCalendarCheck,
+  FaPlus,
+  FaSyncAlt
+} from "react-icons/fa";
+
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
+
+import Layout from "../components/Layout";
+import DashboardCard from "../components/DashboardCard";
 import BookingForm from "../components/BookingForm";
 import BookingTable from "../components/BookingTable";
 import BookingBarChart from "../components/BookingBarChart";
-import Navbar from "../components/Navbar";
+
+import "./EquipmentPage.css";
 
 function BookingPage() {
 
+  const { role } = useAuth();
+
   const [equipment, setEquipment] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
   const [bookingData, setBookingData] = useState({
     equipmentId: "",
-    bookingDate: "",
+    startDate: "",
+    endDate: "",
     purpose: "",
   });
 
-  // ==========================
-  // Get role from JWT token
-  // ==========================
-  const token = localStorage.getItem("token");
-
-  let role = "";
-
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      role = decoded.role || "";
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const isResearcher = role === "ROLE_RESEARCHER";
+  const isResearcher = role === "RESEARCHER";
 
   useEffect(() => {
     fetchEquipment();
@@ -43,38 +41,47 @@ function BookingPage() {
 
   const fetchEquipment = async () => {
     try {
+
       const response = await api.get("/equipment");
+
       setEquipment(response.data);
+
     } catch (error) {
+
       console.error(error);
+
       toast.error("Failed to load equipment.");
+
     }
   };
 
   const fetchBookings = async () => {
+
     try {
 
-      let response;
-
-      if (isResearcher) {
-        response = await api.get("/bookings/my");
-      } else {
-        response = await api.get("/bookings");
-      }
+      const response = isResearcher
+        ? await api.get("/bookings/my")
+        : await api.get("/bookings");
 
       setBookings(response.data);
 
     } catch (error) {
+
       console.error(error);
+
       toast.error("Failed to load bookings.");
+
     }
+
   };
 
   const handleChange = (e) => {
+
     setBookingData({
       ...bookingData,
       [e.target.name]: e.target.value,
     });
+
   };
 
   const handleSubmit = async (e) => {
@@ -89,9 +96,12 @@ function BookingPage() {
 
       setBookingData({
         equipmentId: "",
-        bookingDate: "",
+        startDate: "",
+        endDate: "",
         purpose: "",
       });
+
+      setShowForm(false);
 
       fetchBookings();
 
@@ -99,7 +109,10 @@ function BookingPage() {
 
       console.error(error);
 
-      toast.error("Failed to create booking.");
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to create booking."
+      );
 
     }
 
@@ -116,8 +129,6 @@ function BookingPage() {
       fetchBookings();
 
     } catch (error) {
-
-      console.error(error);
 
       toast.error("Failed to approve booking.");
 
@@ -137,8 +148,6 @@ function BookingPage() {
 
     } catch (error) {
 
-      console.error(error);
-
       toast.error("Failed to reject booking.");
 
     }
@@ -157,8 +166,6 @@ function BookingPage() {
 
     } catch (error) {
 
-      console.error(error);
-
       toast.error("Failed to complete booking.");
 
     }
@@ -167,78 +174,161 @@ function BookingPage() {
 
   const bookingStats = {
 
-    totalBookings: bookings.length,
+  totalBookings: bookings.length,
 
-    pendingBookings: bookings.filter(
-      (b) => b.status === "PENDING"
+  pendingBookings:
+    bookings.filter(
+      b => b.status === "PENDING"
     ).length,
 
-    approvedBookings: bookings.filter(
-      (b) => b.status === "APPROVED"
+  waitingBookings:
+    bookings.filter(
+      b => b.status === "WAITING"
     ).length,
 
-    rejectedBookings: bookings.filter(
-      (b) => b.status === "REJECTED"
+  approvedBookings:
+    bookings.filter(
+      b => b.status === "APPROVED"
     ).length,
 
-  };
+  rejectedBookings:
+    bookings.filter(
+      b => b.status === "REJECTED"
+    ).length,
+
+  completedBookings:
+    bookings.filter(
+      b => b.status === "COMPLETED"
+    ).length
+
+};
 
   return (
 
-    <>
-      <Navbar />
+    <Layout>
 
-      <div className="dashboard">
+      <div className="equipment-page">
 
-        <h1>Book Equipment</h1>
+        <div className="page-header">
 
-        <p>
-          Schedule laboratory equipment for research and monitor booking requests.
-        </p>
+          <div>
 
-        <div className="dashboard-container">
+            <h1>
 
-          <div className="dashboard-card">
-            <div className="card-content">
-              <h4>Total Bookings</h4>
-              <h2>{bookingStats.totalBookings}</h2>
-            </div>
+              <FaCalendarCheck />
+
+              Booking Management
+
+            </h1>
+
+            <p>
+
+              Manage equipment booking requests efficiently.
+
+            </p>
+
           </div>
 
-          <div className="dashboard-card">
-            <div className="card-content">
-              <h4>Pending</h4>
-              <h2>{bookingStats.pendingBookings}</h2>
-            </div>
-          </div>
+          {isResearcher && (
 
-          <div className="dashboard-card">
-            <div className="card-content">
-              <h4>Approved</h4>
-              <h2>{bookingStats.approvedBookings}</h2>
-            </div>
-          </div>
+            <button
+              className="add-equipment-btn"
+              onClick={() => setShowForm(!showForm)}
+            >
 
-          <div className="dashboard-card">
-            <div className="card-content">
-              <h4>Rejected</h4>
-              <h2>{bookingStats.rejectedBookings}</h2>
-            </div>
-          </div>
+              <FaPlus />
+
+              {showForm ? "Close Form" : "New Booking"}
+
+            </button>
+
+          )}
 
         </div>
 
-        {isResearcher && (
-          <BookingForm
-            equipment={equipment}
-            bookingData={bookingData}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
+        <div className="dashboard-container">
+
+          <DashboardCard
+            title="Total Bookings"
+            value={bookingStats.totalBookings}
+            icon={<FaCalendarCheck />}
           />
+
+          <DashboardCard
+            title="Pending"
+            value={bookingStats.pendingBookings}
+            icon={<FaCalendarCheck />}
+          />
+
+          <DashboardCard
+  title="Waiting"
+  value={bookingStats.waitingBookings}
+  icon={<FaCalendarCheck />}
+/>
+
+          <DashboardCard
+            title="Approved"
+            value={bookingStats.approvedBookings}
+            icon={<FaCalendarCheck />}
+          />
+
+          <DashboardCard
+            title="Rejected"
+            value={bookingStats.rejectedBookings}
+            icon={<FaCalendarCheck />}
+          />
+
+          <DashboardCard
+  title="Completed"
+  value={bookingStats.completedBookings}
+  icon={<FaCalendarCheck />}
+/>
+
+        </div>
+
+        {showForm && isResearcher && (
+
+          <BookingForm
+    equipment={equipment}
+    bookingData={bookingData}
+    handleChange={handleChange}
+    handleSubmit={handleSubmit}
+    selectedEquipment={
+        equipment.find(
+            item => item.id === Number(bookingData.equipmentId)
+        )
+    }
+/>
+
         )}
 
         <div className="charts-section">
-          <BookingBarChart stats={bookingStats} />
+
+          <BookingBarChart
+            stats={bookingStats}
+          />
+
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "20px"
+          }}
+        >
+
+          <button
+            className="toolbar-btn secondary"
+            onClick={fetchBookings}
+          >
+
+            <FaSyncAlt />
+
+            Refresh
+
+          </button>
+
         </div>
 
         <BookingTable
@@ -251,7 +341,7 @@ function BookingPage() {
 
       </div>
 
-    </>
+    </Layout>
 
   );
 

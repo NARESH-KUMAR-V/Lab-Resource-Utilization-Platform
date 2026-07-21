@@ -9,7 +9,9 @@ public class BookingRequest {
 
     private Long equipmentId;
 
-    private LocalDate bookingDate;
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 
     private String purpose;
 }

@@ -23,6 +23,7 @@ public interface BookingService {
 
     List<Booking> getMyBookings(String userEmail);
 
-    // NEW
     List<Booking> getBookingHistory(String userEmail);
+
+    List<Booking> getPendingBookings();
 }
