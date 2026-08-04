@@ -2,6 +2,7 @@ package com.labplatform.lab_platform_backend.repository;
 
 import com.labplatform.lab_platform_backend.entity.Role;
 import com.labplatform.lab_platform_backend.entity.User;
+import com.labplatform.lab_platform_backend.entity.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByLaboratoryId(Long laboratoryId);
 
+    List<User> findByStatus(UserStatus status);
+
+    long countByStatus(UserStatus status);
 }

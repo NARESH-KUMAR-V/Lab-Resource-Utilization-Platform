@@ -1,12 +1,31 @@
+import { useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import "./Table.css";
 
 function UsersTable({ users }) {
+  const [search, setSearch] = useState("");
+
+  const filteredUsers = users.filter((u) =>
+    u.name?.toLowerCase().includes(search.toLowerCase()) ||
+    u.email?.toLowerCase().includes(search.toLowerCase()) ||
+    u.role?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="table-card">
 
       <div className="table-header">
-        <h2>User List</h2>
-        <span>Total : {users.length}</span>
+        <h2>User Directory</h2>
+        
+        <div className="search-wrapper">
+          <FaSearch />
+          <input
+            type="text"
+            placeholder="Search by name, email, or role..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="table-container">
@@ -16,8 +35,8 @@ function UsersTable({ users }) {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Email</th>
+              <th>Full Name</th>
+              <th>Email Address</th>
               <th>Role</th>
               <th>Auth Provider</th>
               <th>Institution</th>
@@ -27,15 +46,15 @@ function UsersTable({ users }) {
 
           <tbody>
 
-            {users.length > 0 ? (
+            {filteredUsers.length > 0 ? (
 
-              users.map((user) => (
+              filteredUsers.map((user) => (
 
                 <tr key={user.id}>
 
-                  <td>{user.id}</td>
+                  <td><strong>#{user.id}</strong></td>
 
-                  <td>{user.name}</td>
+                  <td><strong>{user.name}</strong></td>
 
                   <td>{user.email}</td>
 
@@ -47,7 +66,7 @@ function UsersTable({ users }) {
 
                   <td>
                     <span className="provider-badge">
-                      {user.authProvider}
+                      {user.authProvider || "LOCAL"}
                     </span>
                   </td>
 
@@ -70,8 +89,8 @@ function UsersTable({ users }) {
             ) : (
 
               <tr>
-                <td colSpan="7" className="no-data">
-                  No users found.
+                <td colSpan="7" className="empty-table">
+                  👥 No users found matching your search.
                 </td>
               </tr>
 

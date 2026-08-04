@@ -10,6 +10,7 @@ function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [department, setDepartment] = useState("");
 
   const [role, setRole] = useState("RESEARCHER");
 
@@ -67,6 +68,7 @@ function RegisterPage() {
         email,
         password,
         role,
+        department,
         institutionId: role === "SYSTEM_ADMIN" ? null : institutionId,
         laboratoryId:
           role === "SYSTEM_ADMIN" || role === "INSTITUTION_ADMIN"
@@ -74,12 +76,15 @@ function RegisterPage() {
             : laboratoryId,
       });
 
-      toast.success("Registration successful!");
+      toast.success(
+        "Registration submitted successfully! Your account is awaiting System Admin approval."
+      );
       navigate("/login");
     } catch (err) {
       console.error(err);
-      setError("Registration failed.");
-      toast.error("Registration failed.");
+      const msg = err.response?.data?.message || "Registration failed.";
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -121,8 +126,7 @@ function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label>Role</label>
-
+            <label>Requested Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -134,6 +138,16 @@ function RegisterPage() {
               <option value="INSTITUTION_ADMIN">Institution Admin</option>
               <option value="SYSTEM_ADMIN">System Admin</option>
             </select>
+          </div>
+
+          {/* Department */}
+          <div className="form-group">
+            <label>Department</label>
+            <input
+              value={department}
+              placeholder="e.g. Computer Science, Biotechnology"
+              onChange={(e) => setDepartment(e.target.value)}
+            />
           </div>
 
           {/* Institution - Hidden only for System Admin */}
@@ -161,12 +175,11 @@ function RegisterPage() {
           {role !== "SYSTEM_ADMIN" &&
             role !== "INSTITUTION_ADMIN" && (
               <div className="form-group">
-                <label>Laboratory</label>
+                <label>Laboratory (Optional depending on role)</label>
 
                 <select
                   value={laboratoryId}
                   onChange={(e) => setLaboratoryId(e.target.value)}
-                  required
                 >
                   <option value="">Select Laboratory</option>
 

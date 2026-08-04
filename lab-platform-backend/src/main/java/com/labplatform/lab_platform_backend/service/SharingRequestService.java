@@ -8,6 +8,10 @@ public interface SharingRequestService {
 
     List<SharingRequest> getAllRequests();
 
+    List<SharingRequest> getIncomingRequests();
+
+    List<SharingRequest> getOutgoingRequests();
+
     SharingRequest getRequestById(Long id);
 
     SharingRequest createRequest(SharingRequest request, String userEmail);

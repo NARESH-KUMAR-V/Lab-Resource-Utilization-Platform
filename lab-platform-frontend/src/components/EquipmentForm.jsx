@@ -29,7 +29,8 @@ function EquipmentForm({
 
       <div className="form-header">
         <div>
-          <h2>{editId ? "Edit Equipment" : "Add New Equipment"}</h2>
+          <h2>{editId ? "✏️ Edit Equipment" : "➕ Add New Equipment"}</h2>
+          <p>Provide specifications, category, cost per day, and assigned laboratory.</p>
         </div>
       </div>
 
@@ -38,11 +39,11 @@ function EquipmentForm({
         <div className="form-grid">
 
           <div className="form-group">
-            <label>Equipment Name</label>
+            <label>Equipment Name *</label>
             <input
               type="text"
               name="name"
-              placeholder="Enter equipment name"
+              placeholder="e.g. High-Performance Centrifuge"
               value={formData.name}
               onChange={handleChange}
               required
@@ -50,11 +51,11 @@ function EquipmentForm({
           </div>
 
           <div className="form-group">
-            <label>Category</label>
+            <label>Category *</label>
             <input
               type="text"
               name="category"
-              placeholder="Enter category"
+              placeholder="e.g. Separation Technology"
               value={formData.category}
               onChange={handleChange}
               required
@@ -62,11 +63,11 @@ function EquipmentForm({
           </div>
 
           <div className="form-group">
-            <label>Cost Per Day (₹)</label>
+            <label>Cost Per Day (₹) *</label>
             <input
               type="number"
               name="costPerDay"
-              placeholder="Enter daily utilization cost"
+              placeholder="0.00"
               value={formData.costPerDay}
               onChange={handleChange}
               min="0"
@@ -76,7 +77,7 @@ function EquipmentForm({
           </div>
 
           <div className="form-group">
-            <label>Laboratory</label>
+            <label>Laboratory *</label>
 
             <select
               name="laboratory"
@@ -125,13 +126,33 @@ function EquipmentForm({
             </select>
           </div>
 
+          <div className="form-group">
+            <label>Inter-Institution Sharing</label>
+
+            <select
+              name="shared"
+              value={formData.shared ? "true" : "false"}
+              onChange={(e) =>
+                handleChange({
+                  target: {
+                    name: "shared",
+                    value: e.target.value === "true",
+                  },
+                })
+              }
+            >
+              <option value="false">Private / Internal Only</option>
+              <option value="true">🤝 Shared Across Institutions</option>
+            </select>
+          </div>
+
           <div className="form-group full-width">
-            <label>Specifications</label>
+            <label>Specifications *</label>
 
             <textarea
-              rows="5"
+              rows="4"
               name="specifications"
-              placeholder="Enter equipment specifications..."
+              placeholder="Technical specs, operating parameters..."
               value={formData.specifications}
               onChange={handleChange}
               required
@@ -142,9 +163,9 @@ function EquipmentForm({
             <label>Description</label>
 
             <textarea
-              rows="4"
+              rows="3"
               name="description"
-              placeholder="Enter equipment description..."
+              placeholder="Brief summary of equipment features and intended usage..."
               value={formData.description || ""}
               onChange={handleChange}
             />
@@ -164,7 +185,7 @@ function EquipmentForm({
         </div>
 
         <button className="submit-btn" type="submit">
-          {editId ? "Update Equipment" : "Add Equipment"}
+          {editId ? "💾 Update Equipment" : "📦 Save Equipment"}
         </button>
 
       </form>

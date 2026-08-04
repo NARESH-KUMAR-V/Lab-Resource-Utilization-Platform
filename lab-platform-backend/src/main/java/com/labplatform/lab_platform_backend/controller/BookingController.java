@@ -35,6 +35,12 @@ public class BookingController {
         return bookingService.getBookingHistory(authentication.getName());
     }
 
+    @GetMapping("/equipment/{equipmentId}")
+    @PreAuthorize("hasRole('RESEARCHER') or hasRole('LAB_TECHNICIAN') or hasRole('LAB_MANAGER') or hasRole('DEPARTMENT_HEAD') or hasRole('INSTITUTION_ADMIN') or hasRole('SYSTEM_ADMIN')")
+    public List<Booking> getBookingsByEquipmentId(@PathVariable Long equipmentId) {
+        return bookingService.getBookingsByEquipmentId(equipmentId);
+    }
+
     @GetMapping("/pending")
     @PreAuthorize("hasRole('LAB_MANAGER') or hasRole('INSTITUTION_ADMIN') or hasRole('SYSTEM_ADMIN')")
     public List<Booking> getPendingBookings() {
@@ -80,5 +86,11 @@ public class BookingController {
     @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN')")
     public void deleteBooking(@PathVariable Long id) {
         bookingService.deleteBooking(id);
+    }
+
+    @GetMapping("/waiting")
+    @PreAuthorize("hasRole('LAB_MANAGER') or hasRole('INSTITUTION_ADMIN') or hasRole('SYSTEM_ADMIN')")
+    public List<Booking> getWaitingBookings() {
+        return bookingService.getWaitingBookings();
     }
 }

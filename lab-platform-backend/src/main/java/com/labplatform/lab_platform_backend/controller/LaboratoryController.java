@@ -18,40 +18,38 @@ public class LaboratoryController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('SYSTEM_ADMIN')")
+    @PreAuthorize("hasRole('LAB_MANAGER') or hasRole('LAB_TECHNICIAN') or hasRole('DEPARTMENT_HEAD') or hasRole('INSTITUTION_ADMIN') or hasRole('SYSTEM_ADMIN')")
     public List<Laboratory> getAllLaboratories() {
         return laboratoryService.getAllLaboratories();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN')")
+    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN') or hasRole('LAB_MANAGER') or hasRole('DEPARTMENT_HEAD')")
     public Laboratory getLaboratoryById(@PathVariable Long id) {
         return laboratoryService.getLaboratoryById(id);
     }
 
-    // Public endpoint used by Register Page
     @GetMapping("/institution/{institutionId}")
     public List<Laboratory> getByInstitution(@PathVariable Long institutionId) {
         return laboratoryService.getLaboratoriesByInstitution(institutionId);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN')")
+    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN') or hasRole('LAB_MANAGER')")
     public Laboratory createLaboratory(@RequestBody Laboratory laboratory) {
         return laboratoryService.createLaboratory(laboratory);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN')")
+    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN') or hasRole('LAB_MANAGER')")
     public Laboratory updateLaboratory(
             @PathVariable Long id,
             @RequestBody Laboratory laboratory) {
-
         return laboratoryService.updateLaboratory(id, laboratory);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('SYSTEM_ADMIN')")
+    @PreAuthorize("hasRole('SYSTEM_ADMIN') or hasRole('INSTITUTION_ADMIN')")
     public void deleteLaboratory(@PathVariable Long id) {
         laboratoryService.deleteLaboratory(id);
     }

@@ -14,6 +14,11 @@ import NotificationPage from "./pages/NotificationsPage";
 import UsersPage from "./pages/UsersPage";
 import LaboratoryPage from "./pages/LaboratoryPage";
 import InstitutionPage from "./pages/InstitutionPage";
+import UserApprovalPage from "./pages/UserApprovalPage";
+import UtilizationAnalyticsPage from "./pages/UtilizationAnalyticsPage";
+import CertificateManagementPage from "./pages/CertificateManagementPage";
+import BillingPage from "./pages/BillingPage";
+import ReportsPage from "./pages/ReportsPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -94,6 +99,37 @@ function App() {
         />
 
         <Route
+          path="/utilization-analytics"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "LAB_MANAGER",
+                "DEPARTMENT_HEAD",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
+              <UtilizationAnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/certificates"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "LAB_MANAGER",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
+              <CertificateManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/sharing-requests"
           element={
             <ProtectedRoute
@@ -111,10 +147,44 @@ function App() {
         />
 
         <Route
+          path="/billing"
+          element={
+            <ProtectedRoute>
+              <BillingPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "LAB_MANAGER",
+                "DEPARTMENT_HEAD",
+                "INSTITUTION_ADMIN",
+                "SYSTEM_ADMIN"
+              ]}
+            >
+              <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/notifications"
           element={
             <ProtectedRoute>
               <NotificationPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user-approval"
+          element={
+            <ProtectedRoute allowedRoles={["SYSTEM_ADMIN"]}>
+              <UserApprovalPage />
             </ProtectedRoute>
           }
         />

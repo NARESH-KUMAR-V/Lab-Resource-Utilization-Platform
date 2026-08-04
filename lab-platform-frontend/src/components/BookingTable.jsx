@@ -22,6 +22,15 @@ function BookingTable({
     role === "LAB_MANAGER" ||
     role === "INSTITUTION_ADMIN";
 
+  const isEquipmentCurrentlyPendingOrApproved = (equipmentId) => {
+    if (!equipmentId) return false;
+    return bookings.some(
+      (b) =>
+        b.equipment?.id === equipmentId &&
+        (b.status === "PENDING" || b.status === "APPROVED")
+    );
+  };
+
   const filteredBookings = bookings.filter((booking) => {
 
     if (search.trim() === "") return true;
@@ -39,29 +48,29 @@ function BookingTable({
 
   const getStatusClass = (status) => {
 
-  switch (status) {
+    switch (status) {
 
-    case "APPROVED":
-      return "status-approved";
+      case "APPROVED":
+        return "status-approved";
 
-    case "WAITING":
-      return "status-waiting";
+      case "WAITING":
+        return "status-waiting";
 
-    case "COMPLETED":
-      return "status-completed";
+      case "COMPLETED":
+        return "status-completed";
 
-    case "REJECTED":
-      return "status-rejected";
+      case "REJECTED":
+        return "status-rejected";
 
-    case "CANCELLED":
-      return "status-cancelled";
+      case "CANCELLED":
+        return "status-cancelled";
 
-    default:
-      return "status-pending";
+      default:
+        return "status-pending";
 
-  }
+    }
 
-};
+  };
 
   const formatDate = (date) => {
 
@@ -78,9 +87,7 @@ function BookingTable({
       <div className="table-header">
 
         <h2>
-
-          {isAdmin ? "All Bookings" : "My Bookings"}
-
+          {isAdmin ? "All Booking Records" : "My Booking Requests"}
         </h2>
 
         <div className="search-wrapper">
@@ -89,7 +96,7 @@ function BookingTable({
 
           <input
             type="text"
-            placeholder="Search equipment or user..."
+            placeholder="Search by equipment or researcher..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -112,19 +119,19 @@ function BookingTable({
 
             <th>Institution</th>
 
-            <th>User</th>
+            <th>Researcher</th>
 
-            <th>Start</th>
+            <th>Start Date</th>
 
-            <th>End</th>
+            <th>End Date</th>
 
             <th>Purpose</th>
 
-<th>Cost (₹)</th>
+            <th>Cost (₹)</th>
 
-<th>Status</th>
+            <th>Status</th>
 
-<th>Waiting No.</th>
+            <th>Queue No.</th>
 
             {isAdmin && <th>Actions</th>}
 
@@ -136,121 +143,164 @@ function BookingTable({
 
           {filteredBookings.length > 0 ? (
 
-            filteredBookings.map((booking) => (
+            filteredBookings.map((booking) => {
 
-              <tr key={booking.id}>
+              const equipmentHasPendingOrApproved = isEquipmentCurrentlyPendingOrApproved(
+                booking.equipment?.id
+              );
 
-                <td>{booking.id}</td>
+              return (
 
-                <td>{booking.equipment?.name || "-"}</td>
+                <tr key={booking.id}>
 
-                <td>{booking.equipment?.laboratory?.name || "-"}</td>
+                  <td><strong>#{booking.id}</strong></td>
 
-                <td>{booking.equipment?.laboratory?.institution?.name || "-"}</td>
+                  <td><strong>{booking.equipment?.name || "-"}</strong></td>
 
-                <td>{booking.user?.name || "-"}</td>
+                  <td>{booking.equipment?.laboratory?.name || "-"}</td>
 
-                <td>{formatDate(booking.startDate)}</td>
+                  <td>{booking.equipment?.laboratory?.institution?.name || "-"}</td>
 
-                <td>{formatDate(booking.endDate)}</td>
+                  <td>{booking.user?.name || "-"}</td>
 
-                <td>{booking.purpose || "-"}</td>
+                  <td>{formatDate(booking.startDate)}</td>
 
-<td>
+                  <td>{formatDate(booking.endDate)}</td>
 
-  ₹{booking.utilizationCost?.toLocaleString() || 0}
+                  <td
+                    title={booking.purpose || ""}
+                    style={{ maxWidth: "160px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                  >
+                    {booking.purpose || "-"}
+                  </td>
 
-</td>
+                  <td>
+                    ₹{booking.utilizationCost?.toLocaleString() || 0}
+                  </td>
 
-<td>
+                  <td>
 
-  <span className={`status-badge ${getStatusClass(booking.status)}`}>
+                    <span className={`status-badge ${getStatusClass(booking.status)}`}>
 
-    {booking.status.replaceAll("_", " ")}
+                      {booking.status.replaceAll("_", " ")}
 
-  </span>
+                    </span>
 
-</td>
+                  </td>
 
-<td>
+                  <td>
 
-  {booking.status === "WAITING"
-    ? booking.waitingPosition
-    : "-"}
+                    {booking.status === "WAITING" ? (
+                      <span className="status-badge status-waiting">
+                        #{booking.waitingPosition}
+                      </span>
+                    ) : "-"}
 
-</td>
+                  </td>
 
-                {isAdmin && (
+                  {isAdmin && (
 
-  <td>
+                    <td>
 
-    {booking.status === "PENDING" && (
+                      {booking.status === "PENDING" && (
 
-      <>
+                        <>
 
-        <button
-          className="action-btn edit-btn"
-          onClick={() => approveBooking(booking.id)}
-        >
-          <FaCheckCircle />
-          Approve
-        </button>
+                          <button
+                            className="action-btn approve-btn"
+                            onClick={() => approveBooking(booking.id)}
+                            title="Approve Booking Request"
+                          >
+                            <FaCheckCircle />
+                            Approve
+                          </button>
 
-        <button
-          className="action-btn delete-btn"
-          onClick={() => rejectBooking(booking.id)}
-        >
-          <FaTimesCircle />
-          Reject
-        </button>
+                          <button
+                            className="action-btn reject-btn"
+                            onClick={() => rejectBooking(booking.id)}
+                            title="Reject Booking Request"
+                          >
+                            <FaTimesCircle />
+                            Reject
+                          </button>
 
-      </>
+                        </>
 
-    )}
+                      )}
 
-    {booking.status === "WAITING" && (
+                      {booking.status === "WAITING" && (
 
-      <button
-        className="action-btn secondary"
-        disabled
-      >
-        Waiting Queue
-      </button>
+                        (!equipmentHasPendingOrApproved && booking.waitingPosition === 1) ? (
 
-    )}
+                          <>
 
-    {booking.status === "APPROVED" && (
+                            <button
+                              className="action-btn approve-btn"
+                              onClick={() => approveBooking(booking.id)}
+                              title="Approve Waiting Request"
+                            >
+                              <FaCheckCircle />
+                              Approve
+                            </button>
 
-      <button
-        className="action-btn complete-btn"
-        onClick={() => completeBooking(booking.id)}
-      >
-        <FaClipboardCheck />
-        Complete
-      </button>
+                            <button
+                              className="action-btn reject-btn"
+                              onClick={() => rejectBooking(booking.id)}
+                              title="Reject Waiting Request"
+                            >
+                              <FaTimesCircle />
+                              Reject
+                            </button>
 
-    )}
+                          </>
 
-    {(booking.status === "REJECTED" ||
-      booking.status === "COMPLETED" ||
-      booking.status === "CANCELLED") && (
+                        ) : (
 
-      <button
-        className="action-btn secondary"
-        disabled
-      >
-        Processed
-      </button>
+                          <button
+                            className="action-btn secondary"
+                            disabled
+                          >
+                            In Queue
+                          </button>
 
-    )}
+                        )
 
-  </td>
+                      )}
 
-)}
+                      {booking.status === "APPROVED" && (
 
-              </tr>
+                        <button
+                          className="action-btn complete-btn"
+                          onClick={() => completeBooking(booking.id)}
+                        >
+                          <FaClipboardCheck />
+                          Complete
+                        </button>
 
-            ))
+                      )}
+
+                      {(booking.status === "REJECTED" ||
+                        booking.status === "COMPLETED" ||
+                        booking.status === "CANCELLED") && (
+
+                        <button
+                          className="action-btn secondary"
+                          disabled
+                        >
+                          Processed
+                        </button>
+
+                      )}
+
+                    </td>
+
+                  )}
+
+                </tr>
+
+              );
+
+            })
 
           ) : (
 
@@ -261,7 +311,7 @@ function BookingTable({
                 className="empty-table"
               >
 
-                📅 No bookings found.
+                📅 No booking records found.
 
               </td>
 

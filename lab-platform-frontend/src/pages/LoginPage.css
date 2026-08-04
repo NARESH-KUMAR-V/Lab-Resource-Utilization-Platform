@@ -1,132 +1,130 @@
+/* ============================================================
+   ENTERPRISE LOGIN & AUTH PAGE STYLES
+   ============================================================ */
+
 .login-container {
-    min-height: 100vh;
-    background: #f4f6f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  position: relative;
 }
 
 .login-card {
-    width: 100%;
-    max-width: 430px;
-    background: #fff;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  padding: 40px 36px;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+  border: 1px solid var(--color-border);
+  animation: authFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-card h1 {
-    color: #1976d2;
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 30px;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 4px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .login-card h2 {
-    text-align: center;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: .3s;
-    box-sizing: border-box;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #1976d2;
+  text-align: center;
+  color: var(--color-secondary);
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .login-btn {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 8px;
-    background: #1976d2;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: .3s;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  margin-top: 8px;
 }
 
 .login-btn:hover {
-    background: #1565c0;
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .google-btn {
-    display: block;
-    text-align: center;
-    margin-top: 18px;
-    padding: 13px;
-    border-radius: 8px;
-    text-decoration: none;
-    background: white;
-    color: #1976d2;
-    border: 2px solid #1976d2;
-    font-weight: 600;
-    transition: .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  margin-top: 16px;
+  padding: 11px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  background: #ffffff;
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border-dark);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .google-btn:hover {
-    background: #1976d2;
-    color: white;
+  background: var(--color-bg-subtle);
+  border-color: var(--color-secondary);
 }
 
 .error-message {
-    color: red;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #dcdcdc;
-    border-radius: 8px;
-    font-size: 15px;
-    box-sizing: border-box;
-    background: white;
-}
-
-.form-group select:focus {
-    outline: none;
-    border-color: #1976d2;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .auth-link {
-    margin-top: 20px;
-    text-align: center;
+  margin-top: 24px;
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
 }
 
 .auth-link p {
-    color: #555;
-    font-size: 15px;
+  color: var(--color-text-muted);
+  font-size: 13.5px;
+  margin: 0;
 }
 
 .auth-link a {
-    color: #1976d2;
-    text-decoration: none;
-    font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .auth-link a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }

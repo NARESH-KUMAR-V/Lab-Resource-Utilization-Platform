@@ -3,7 +3,8 @@ import { toast } from "react-toastify";
 import {
   FaCalendarCheck,
   FaPlus,
-  FaSyncAlt
+  FaSyncAlt,
+  FaListOl
 } from "react-icons/fa";
 
 import api from "../api/axios";
@@ -14,6 +15,7 @@ import DashboardCard from "../components/DashboardCard";
 import BookingForm from "../components/BookingForm";
 import BookingTable from "../components/BookingTable";
 import BookingBarChart from "../components/BookingBarChart";
+import WaitingQueueModal from "../components/WaitingQueueModal";
 
 import "./EquipmentPage.css";
 
@@ -24,6 +26,9 @@ function BookingPage() {
   const [equipment, setEquipment] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [showForm, setShowForm] = useState(false);
+
+  const [showWaitingModal, setShowWaitingModal] = useState(false);
+  const [waitingBookings, setWaitingBookings] = useState([]);
 
   const [bookingData, setBookingData] = useState({
     equipmentId: "",
@@ -127,10 +132,16 @@ function BookingPage() {
       toast.success("Booking approved.");
 
       fetchBookings();
+      if (showWaitingModal) {
+        fetchWaitingBookings();
+      }
 
     } catch (error) {
 
-      toast.error("Failed to approve booking.");
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to approve booking."
+      );
 
     }
 
@@ -145,10 +156,16 @@ function BookingPage() {
       toast.success("Booking rejected.");
 
       fetchBookings();
+      if (showWaitingModal) {
+        fetchWaitingBookings();
+      }
 
     } catch (error) {
 
-      toast.error("Failed to reject booking.");
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to reject booking."
+      );
 
     }
 
@@ -163,10 +180,34 @@ function BookingPage() {
       toast.success("Booking completed.");
 
       fetchBookings();
+      if (showWaitingModal) {
+        fetchWaitingBookings();
+      }
 
     } catch (error) {
 
-      toast.error("Failed to complete booking.");
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to complete booking."
+      );
+
+    }
+
+  };
+
+  const fetchWaitingBookings = async () => {
+
+    try {
+
+      const response = await api.get("/bookings/waiting");
+
+      setWaitingBookings(response.data);
+
+      setShowWaitingModal(true);
+
+    } catch (error) {
+
+      toast.error("Failed to load waiting queue.");
 
     }
 
@@ -174,34 +215,34 @@ function BookingPage() {
 
   const bookingStats = {
 
-  totalBookings: bookings.length,
+    totalBookings: bookings.length,
 
-  pendingBookings:
-    bookings.filter(
-      b => b.status === "PENDING"
-    ).length,
+    pendingBookings:
+      bookings.filter(
+        b => b.status === "PENDING"
+      ).length,
 
-  waitingBookings:
-    bookings.filter(
-      b => b.status === "WAITING"
-    ).length,
+    waitingBookings:
+      bookings.filter(
+        b => b.status === "WAITING"
+      ).length,
 
-  approvedBookings:
-    bookings.filter(
-      b => b.status === "APPROVED"
-    ).length,
+    approvedBookings:
+      bookings.filter(
+        b => b.status === "APPROVED"
+      ).length,
 
-  rejectedBookings:
-    bookings.filter(
-      b => b.status === "REJECTED"
-    ).length,
+    rejectedBookings:
+      bookings.filter(
+        b => b.status === "REJECTED"
+      ).length,
 
-  completedBookings:
-    bookings.filter(
-      b => b.status === "COMPLETED"
-    ).length
+    completedBookings:
+      bookings.filter(
+        b => b.status === "COMPLETED"
+      ).length
 
-};
+  };
 
   return (
 
@@ -214,17 +255,12 @@ function BookingPage() {
           <div>
 
             <h1>
-
               <FaCalendarCheck />
-
-              Booking Management
-
+              Booking &amp; Queue Management
             </h1>
 
             <p>
-
-              Manage equipment booking requests efficiently.
-
+              Schedule equipment reservations, review pending requests, and manage queue positions.
             </p>
 
           </div>
@@ -246,6 +282,7 @@ function BookingPage() {
 
         </div>
 
+        {/* Operational Stats Grid */}
         <div className="dashboard-container">
 
           <DashboardCard
@@ -255,16 +292,16 @@ function BookingPage() {
           />
 
           <DashboardCard
-            title="Pending"
+            title="Pending Requests"
             value={bookingStats.pendingBookings}
             icon={<FaCalendarCheck />}
           />
 
           <DashboardCard
-  title="Waiting"
-  value={bookingStats.waitingBookings}
-  icon={<FaCalendarCheck />}
-/>
+            title="In Waiting Queue"
+            value={bookingStats.waitingBookings}
+            icon={<FaCalendarCheck />}
+          />
 
           <DashboardCard
             title="Approved"
@@ -279,26 +316,26 @@ function BookingPage() {
           />
 
           <DashboardCard
-  title="Completed"
-  value={bookingStats.completedBookings}
-  icon={<FaCalendarCheck />}
-/>
+            title="Completed"
+            value={bookingStats.completedBookings}
+            icon={<FaCalendarCheck />}
+          />
 
         </div>
 
         {showForm && isResearcher && (
 
           <BookingForm
-    equipment={equipment}
-    bookingData={bookingData}
-    handleChange={handleChange}
-    handleSubmit={handleSubmit}
-    selectedEquipment={
-        equipment.find(
-            item => item.id === Number(bookingData.equipmentId)
-        )
-    }
-/>
+            equipment={equipment}
+            bookingData={bookingData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            selectedEquipment={
+              equipment.find(
+                item => item.id === Number(bookingData.equipmentId)
+              )
+            }
+          />
 
         )}
 
@@ -314,7 +351,8 @@ function BookingPage() {
           style={{
             display: "flex",
             justifyContent: "flex-end",
-            marginBottom: "20px"
+            gap: "12px",
+            marginBottom: "16px"
           }}
         >
 
@@ -325,9 +363,19 @@ function BookingPage() {
 
             <FaSyncAlt />
 
-            Refresh
+            Refresh Bookings
 
           </button>
+
+          {!isResearcher && (
+            <button
+              className="toolbar-btn"
+              onClick={fetchWaitingBookings}
+            >
+              <FaListOl />
+              View Waiting Queue
+            </button>
+          )}
 
         </div>
 
@@ -338,6 +386,16 @@ function BookingPage() {
           completeBooking={completeBooking}
           role={role}
         />
+
+        {showWaitingModal && (
+          <WaitingQueueModal
+            bookings={waitingBookings}
+            allBookings={bookings}
+            onClose={() => setShowWaitingModal(false)}
+            approveBooking={approveBooking}
+            rejectBooking={rejectBooking}
+          />
+        )}
 
       </div>
 

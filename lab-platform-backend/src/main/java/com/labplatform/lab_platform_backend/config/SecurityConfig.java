@@ -155,7 +155,13 @@ public class SecurityConfig {
 
                         // Sharing Requests
                         .requestMatchers(HttpMethod.POST, "/api/sharing-requests")
-                        .hasRole("RESEARCHER")
+                        .hasAnyRole(
+                                "RESEARCHER",
+                                "LAB_MANAGER",
+                                "DEPARTMENT_HEAD",
+                                "INSTITUTION_ADMIN",
+                                "SYSTEM_ADMIN"
+                        )
 
                         .requestMatchers(HttpMethod.PUT, "/api/sharing-requests/**")
                         .hasAnyRole(

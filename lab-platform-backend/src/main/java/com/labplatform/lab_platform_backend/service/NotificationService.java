@@ -11,7 +11,11 @@ public interface NotificationService {
 
     Notification createNotification(User user, String message);
 
+    void notifySystemAdmins(String message);
+
     Notification markAsRead(Long id);
 
     void deleteNotification(Long id);
+
+    boolean existsNotification(User user, String message);
 }

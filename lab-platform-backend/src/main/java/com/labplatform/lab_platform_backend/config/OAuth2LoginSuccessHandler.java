@@ -2,6 +2,7 @@ package com.labplatform.lab_platform_backend.config;
 
 import com.labplatform.lab_platform_backend.entity.Role;
 import com.labplatform.lab_platform_backend.entity.User;
+import com.labplatform.lab_platform_backend.entity.UserStatus;
 import com.labplatform.lab_platform_backend.repository.UserRepository;
 import com.labplatform.lab_platform_backend.service.JwtService;
 import jakarta.servlet.ServletException;
@@ -38,9 +39,21 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             newUser.setEmail(email);
             newUser.setName(name);
             newUser.setRole(Role.RESEARCHER);
+            newUser.setRequestedRole(Role.RESEARCHER);
+            newUser.setStatus(UserStatus.PENDING);
             newUser.setAuthProvider("GOOGLE");
             return userRepository.save(newUser);
         });
+
+        if (user.getStatus() == UserStatus.PENDING) {
+            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Your registration is awaiting System Admin approval.", java.nio.charset.StandardCharsets.UTF_8));
+            return;
+        }
+
+        if (user.getStatus() == UserStatus.REJECTED) {
+            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Your registration request has been rejected.", java.nio.charset.StandardCharsets.UTF_8));
+            return;
+        }
 
         String token = jwtService.generateToken(user);
 

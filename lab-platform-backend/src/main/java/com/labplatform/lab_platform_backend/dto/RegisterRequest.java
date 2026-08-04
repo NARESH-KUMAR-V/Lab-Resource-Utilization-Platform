@@ -14,6 +14,8 @@ public class RegisterRequest {
 
     private Role role;
 
+    private String department;
+
     private Long institutionId;
 
     private Long laboratoryId;

@@ -96,10 +96,7 @@ npm run dev
 ![Equipment Management](Images/equipment.png)
 
 ### 📅 Booking Management
-![Booking Management](Images/bookings.png)
-
-### 🔧 Maintenance & Asset Service Management
-![Maintenance Management](Images/maintenance.png)
+![Booking Management](Images/booking.png)
 
 ### 📈 Equipment Utilization Analytics
 ![Utilization Analytics](Images/utilization.png)

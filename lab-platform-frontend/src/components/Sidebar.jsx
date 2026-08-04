@@ -11,7 +11,12 @@ import {
   FaUsers,
   FaUniversity,
   FaBuilding,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaUserCheck,
+  FaChartBar,
+  FaCertificate,
+  FaReceipt,
+  FaFileDownload,
 } from "react-icons/fa";
 
 import "./Sidebar.css";
@@ -84,6 +89,29 @@ function Sidebar() {
         )}
 
         {hasRole(
+          "LAB_MANAGER",
+          "DEPARTMENT_HEAD",
+          "INSTITUTION_ADMIN",
+          "SYSTEM_ADMIN"
+        ) && (
+          <NavLink to="/utilization-analytics">
+            <FaChartBar />
+            <span>Utilization</span>
+          </NavLink>
+        )}
+
+        {hasRole(
+          "LAB_MANAGER",
+          "INSTITUTION_ADMIN",
+          "SYSTEM_ADMIN"
+        ) && (
+          <NavLink to="/certificates">
+            <FaCertificate />
+            <span>Certificates</span>
+          </NavLink>
+        )}
+
+        {hasRole(
           "RESEARCHER",
           "LAB_MANAGER",
           "DEPARTMENT_HEAD",
@@ -96,10 +124,34 @@ function Sidebar() {
           </NavLink>
         )}
 
+        <NavLink to="/billing">
+          <FaReceipt />
+          <span>Cost &amp; Billing</span>
+        </NavLink>
+
+        {hasRole(
+          "LAB_MANAGER",
+          "DEPARTMENT_HEAD",
+          "INSTITUTION_ADMIN",
+          "SYSTEM_ADMIN"
+        ) && (
+          <NavLink to="/reports">
+            <FaFileDownload />
+            <span>Reports &amp; Export</span>
+          </NavLink>
+        )}
+
         <NavLink to="/notifications">
           <FaBell />
           <span>Notifications</span>
         </NavLink>
+
+        {hasRole("SYSTEM_ADMIN") && (
+          <NavLink to="/user-approval">
+            <FaUserCheck />
+            <span>User Approval</span>
+          </NavLink>
+        )}
 
         {hasRole(
           "SYSTEM_ADMIN",

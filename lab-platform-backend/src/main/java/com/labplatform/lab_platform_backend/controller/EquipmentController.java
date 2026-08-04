@@ -29,14 +29,7 @@ public class EquipmentController {
 
     @GetMapping
     public List<Equipment> getAllEquipment(Authentication authentication) {
-
         return equipmentService.getAllEquipment(authentication.getName());
-
-    }
-
-    @GetMapping("/{id}")
-    public Equipment getEquipmentById(@PathVariable Long id) {
-        return equipmentService.getEquipmentById(id);
     }
 
     @GetMapping("/search")
@@ -49,9 +42,19 @@ public class EquipmentController {
         return equipmentService.getSharedEquipment();
     }
 
+    @GetMapping("/external-shared")
+    public List<Equipment> getExternalSharedEquipment() {
+        return equipmentService.getExternalSharedEquipment();
+    }
+
     @GetMapping("/laboratory/{laboratoryId}")
     public List<Equipment> getEquipmentByLaboratory(@PathVariable Long laboratoryId) {
         return equipmentService.getEquipmentByLaboratory(laboratoryId);
+    }
+
+    @GetMapping("/{id}")
+    public Equipment getEquipmentById(@PathVariable Long id) {
+        return equipmentService.getEquipmentById(id);
     }
 
     @PostMapping
@@ -65,7 +68,6 @@ public class EquipmentController {
     public Equipment updateEquipment(
             @PathVariable Long id,
             @RequestBody Equipment equipment) {
-
         return equipmentService.updateEquipment(id, equipment);
     }
 

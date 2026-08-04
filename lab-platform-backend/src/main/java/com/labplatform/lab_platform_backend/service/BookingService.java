@@ -11,6 +11,8 @@ public interface BookingService {
 
     Booking getBookingById(Long id);
 
+    List<Booking> getBookingsByEquipmentId(Long equipmentId);
+
     Booking createBooking(BookingRequest request, String userEmail);
 
     Booking approveBooking(Long id);
@@ -26,4 +28,6 @@ public interface BookingService {
     List<Booking> getBookingHistory(String userEmail);
 
     List<Booking> getPendingBookings();
+
+    List<Booking> getWaitingBookings();
 }

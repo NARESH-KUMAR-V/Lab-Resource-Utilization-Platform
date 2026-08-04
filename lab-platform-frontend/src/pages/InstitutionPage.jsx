@@ -152,22 +152,19 @@ function InstitutionPage() {
 
     <Layout>
 
-      <div className="institution-page">
+      <div className="equipment-page">
 
         <div className="page-header">
 
           <div>
 
             <h1>
-
               <FaUniversity />
-
               Institution Management
-
             </h1>
 
             <p>
-              Manage all institutions from one place.
+              Manage academic, research, and enterprise institutions registered on the platform.
             </p>
 
           </div>

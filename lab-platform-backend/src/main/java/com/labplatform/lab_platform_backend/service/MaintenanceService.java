@@ -1,5 +1,6 @@
 package com.labplatform.lab_platform_backend.service;
 
+import com.labplatform.lab_platform_backend.dto.MaintenanceDashboardDTO;
 import com.labplatform.lab_platform_backend.entity.Maintenance;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface MaintenanceService {
     List<Maintenance> getMyMaintenance(String technicianEmail);
 
     void deleteMaintenance(Long id);
+
+    MaintenanceDashboardDTO getMaintenanceDashboard();
 }

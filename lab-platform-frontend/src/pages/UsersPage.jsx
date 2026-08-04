@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import api from "../api/axios";
 import Layout from "../components/Layout";
 import UsersTable from "../components/UsersTable";
+import DashboardCard from "../components/DashboardCard";
 import "./UsersPage.css";
 
 function UsersPage() {
@@ -70,18 +71,18 @@ function UsersPage() {
 
             <h1>
               <FaUsers />
-              User Management
+              User Directory &amp; Roles
             </h1>
 
             <p>
-              View registered users.
+              View all registered platform accounts across institutions, departments, and roles.
             </p>
 
           </div>
 
           <div className="user-count-card">
 
-            <span>Total Users</span>
+            <span>Active Platform Users</span>
 
             <h2>{users.length}</h2>
 
@@ -93,7 +94,7 @@ function UsersPage() {
 
           <div className="loading-card">
 
-            <h3>Loading users...</h3>
+            <h3>Loading user directory...</h3>
 
           </div>
 

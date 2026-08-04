@@ -1,5 +1,6 @@
 package com.labplatform.lab_platform_backend.controller;
 
+import com.labplatform.lab_platform_backend.dto.MaintenanceDashboardDTO;
 import com.labplatform.lab_platform_backend.entity.Maintenance;
 import com.labplatform.lab_platform_backend.service.MaintenanceService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,7 +32,7 @@ public class MaintenanceController {
     }
 
     @GetMapping("/pending")
-    @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public List<Maintenance> getPendingMaintenance() {
         return maintenanceService.getPendingMaintenance();
     }
@@ -42,6 +43,12 @@ public class MaintenanceController {
         return maintenanceService.getMyMaintenance(authentication.getName());
     }
 
+    @GetMapping("/dashboard")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    public MaintenanceDashboardDTO getMaintenanceDashboard() {
+        return maintenanceService.getMaintenanceDashboard();
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public Maintenance createMaintenance(@RequestBody Maintenance maintenance) {
@@ -49,26 +56,26 @@ public class MaintenanceController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public Maintenance updateMaintenance(@PathVariable Long id,
                                          @RequestBody Maintenance maintenance) {
         return maintenanceService.updateMaintenance(id, maintenance);
     }
 
     @PutMapping("/{id}/start")
-    @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public Maintenance startMaintenance(@PathVariable Long id) {
         return maintenanceService.startMaintenance(id);
     }
 
     @PutMapping("/{id}/complete")
-    @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public Maintenance completeMaintenance(@PathVariable Long id) {
         return maintenanceService.completeMaintenance(id);
     }
 
     @PutMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyRole('LAB_TECHNICIAN','LAB_MANAGER','INSTITUTION_ADMIN','SYSTEM_ADMIN')")
     public Maintenance cancelMaintenance(@PathVariable Long id) {
         return maintenanceService.cancelMaintenance(id);
     }

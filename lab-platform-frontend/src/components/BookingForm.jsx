@@ -1,4 +1,6 @@
-import { FaCalendarCheck, FaFlask, FaRupeeSign } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaCalendarCheck, FaFlask, FaRupeeSign, FaInfoCircle, FaExclamationTriangle, FaCertificate, FaFilePdf, FaCheckCircle } from "react-icons/fa";
+import api from "../api/axios";
 import "./Form.css";
 
 function BookingForm({
@@ -8,6 +10,49 @@ function BookingForm({
   handleSubmit,
   selectedEquipment,
 }) {
+
+  const [certificates, setCertificates] = useState([]);
+  const [loadingCerts, setLoadingCerts] = useState(false);
+
+  const [existingBookings, setExistingBookings] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+
+  useEffect(() => {
+    if (selectedEquipment?.id) {
+      // Fetch equipment certificates
+      setLoadingCerts(true);
+      api
+        .get(`/certificates/equipment/${selectedEquipment.id}`)
+        .then((res) => {
+          setCertificates(res.data || []);
+        })
+        .catch((err) => {
+          console.error("Error loading equipment certificates:", err);
+          setCertificates([]);
+        })
+        .finally(() => {
+          setLoadingCerts(false);
+        });
+
+      // Fetch active bookings (APPROVED, PENDING, WAITING) for this equipment to perform date overlap checks
+      setLoadingBookings(true);
+      api
+        .get(`/bookings/equipment/${selectedEquipment.id}`)
+        .then((res) => {
+          setExistingBookings(res.data || []);
+        })
+        .catch((err) => {
+          console.error("Error loading existing equipment bookings:", err);
+          setExistingBookings([]);
+        })
+        .finally(() => {
+          setLoadingBookings(false);
+        });
+    } else {
+      setCertificates([]);
+      setExistingBookings([]);
+    }
+  }, [selectedEquipment?.id]);
 
   const bookableEquipment = equipment.filter(
     (item) =>
@@ -20,12 +65,28 @@ function BookingForm({
   let estimatedDays = 0;
   let estimatedCost = 0;
 
+  const hasStartDate = Boolean(bookingData.startDate);
+  const hasEndDate = Boolean(bookingData.endDate);
+  const datesSelected = hasStartDate && hasEndDate;
+
+  let isInvalidDateRange = false;
+  let dateErrorMessage = "";
+
+  if (datesSelected) {
+    if (bookingData.endDate < bookingData.startDate) {
+      isInvalidDateRange = true;
+      dateErrorMessage = "End date cannot be before start date.";
+    } else if (bookingData.startDate < today) {
+      isInvalidDateRange = true;
+      dateErrorMessage = "Start date cannot be in the past.";
+    }
+  }
+
   if (
     selectedEquipment &&
-    bookingData.startDate &&
-    bookingData.endDate
+    datesSelected &&
+    !isInvalidDateRange
   ) {
-
     const start = new Date(bookingData.startDate);
     const end = new Date(bookingData.endDate);
 
@@ -40,8 +101,31 @@ function BookingForm({
         estimatedDays *
         selectedEquipment.costPerDay;
     }
-
   }
+
+  // Date Overlap Detection logic: requestedStart <= existingEnd && requestedEnd >= existingStart
+  let conflictingApproved = null;
+  let conflictingWaiting = null;
+
+  if (datesSelected && !isInvalidDateRange && selectedEquipment) {
+    const reqStart = bookingData.startDate;
+    const reqEnd = bookingData.endDate;
+
+    const overlappingList = existingBookings.filter((b) => {
+      const existStart = b.startDate;
+      const existEnd = b.endDate;
+      return reqStart <= existEnd && reqEnd >= existStart;
+    });
+
+    conflictingApproved = overlappingList.find((b) => b.status === "APPROVED");
+    conflictingWaiting = overlappingList.find((b) => b.status === "WAITING" || b.status === "PENDING");
+  }
+
+  const hasApprovedConflict = Boolean(conflictingApproved);
+  const hasWaitingConflict = Boolean(conflictingWaiting);
+  const hasDateConflict = hasApprovedConflict || hasWaitingConflict;
+
+  const expiredCertificates = certificates.filter(c => c.status === "EXPIRED");
 
   return (
 
@@ -52,23 +136,11 @@ function BookingForm({
         <div>
 
           <h2>
-
-            <FaCalendarCheck
-              style={{
-                marginRight: "10px",
-                color: "#6c63ff",
-              }}
-            />
-
-            Book Equipment
-
+            📅 Reserve Equipment
           </h2>
 
           <p>
-
-            Reserve laboratory equipment for your
-            experiment or research work.
-
+            Reserve laboratory equipment for your research or experimental workflow.
           </p>
 
         </div>
@@ -79,19 +151,10 @@ function BookingForm({
 
         <div className="form-grid">
 
-          <div className="form-group">
+          <div className="form-group full-width">
 
             <label>
-
-              <FaFlask
-                style={{
-                  marginRight: "8px",
-                  color: "#6c63ff",
-                }}
-              />
-
-              Equipment
-
+              Equipment *
             </label>
 
             <select
@@ -119,7 +182,7 @@ function BookingForm({
                     : ""}
 
                   {item.status === "BOOKED"
-                    ? " - Waiting List Available"
+                    ? " - Currently Booked (Check Available Dates)"
                     : " - Available"}
 
                 </option>
@@ -132,13 +195,12 @@ function BookingForm({
 
               <small
                 style={{
-                  color: "#dc2626",
-                  marginTop: "8px",
+                  color: "var(--color-danger)",
+                  marginTop: "6px",
+                  fontSize: "12.5px"
                 }}
               >
-
-                No equipment can currently be booked.
-
+                No equipment is currently available for booking.
               </small>
 
             )}
@@ -150,100 +212,186 @@ function BookingForm({
             <div
               className="full-width"
               style={{
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-lg)",
                 padding: "20px",
-                marginTop: "10px",
                 display: "flex",
-                gap: "20px",
-                alignItems: "flex-start",
-                background: "#f9fafb",
+                flexDirection: "column",
+                gap: "16px",
+                background: "var(--color-bg-subtle)",
               }}
             >
 
-              <img
-                src={`http://localhost:8080${selectedEquipment.imageUrl}`}
-                alt={selectedEquipment.name}
-                style={{
-                  width: "220px",
-                  height: "160px",
-                  objectFit: "cover",
-                  borderRadius: "10px",
-                  border: "1px solid #ddd",
-                }}
-              />
+              <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }}>
 
-              <div style={{ flex: 1 }}>
-
-                <h3
+                <img
+                  src={
+                    selectedEquipment.imageUrl
+                      ? `http://localhost:8080${selectedEquipment.imageUrl}`
+                      : "/assets/no-image.png"
+                  }
+                  alt={selectedEquipment.name}
                   style={{
-                    marginBottom: "12px",
-                    color: "#374151",
+                    width: "180px",
+                    height: "130px",
+                    objectFit: "cover",
+                    borderRadius: "var(--radius-md)",
+                    border: "1px solid var(--color-border)",
                   }}
-                >
+                />
 
-                  {selectedEquipment.name}
+                <div style={{ flex: 1, fontSize: "13.5px" }}>
 
-                </h3>
+                  <h3
+                    style={{
+                      margin: "0 0 8px 0",
+                      color: "var(--color-text-main)",
+                      fontSize: "16px",
+                      fontWeight: 700
+                    }}
+                  >
+                    {selectedEquipment.name}
+                  </h3>
 
-                <p>
-
-                  <strong>Description:</strong>
-
-                </p>
-
-                <p style={{ marginBottom: "15px" }}>
-
-                  {selectedEquipment.description ||
-                    "No description available."}
-
-                </p>
-
-                <p>
-
-                  <strong>Specifications:</strong>
-
-                </p>
-
-                <p style={{ marginBottom: "15px" }}>
-
-                  {selectedEquipment.specifications ||
-                    "No specifications available."}
-
-                </p>
-
-                {selectedEquipment.laboratory && (
-
-                  <p>
-
-                    <strong>Laboratory:</strong>{" "}
-
-                    {selectedEquipment.laboratory.name}
-
+                  <p style={{ margin: "0 0 6px 0", color: "var(--color-text-muted)" }}>
+                    {selectedEquipment.description || "No description available."}
                   </p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "8px", marginTop: "12px" }}>
+                    <div>
+                      <span style={{ color: "var(--color-text-subtle)", fontSize: "12px" }}>Laboratory</span>
+                      <div style={{ fontWeight: 600 }}>{selectedEquipment.laboratory?.name || "-"}</div>
+                    </div>
+                    <div>
+                      <span style={{ color: "var(--color-text-subtle)", fontSize: "12px" }}>Cost / Day</span>
+                      <div style={{ fontWeight: 600 }}>₹{selectedEquipment.costPerDay?.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <span style={{ color: "var(--color-text-subtle)", fontSize: "12px" }}>General Status</span>
+                      <div>
+                        <span className={`status-badge ${selectedEquipment.status.toLowerCase()}`}>
+                          {selectedEquipment.status === "BOOKED" ? "Currently Booked" : "Available"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Equipment Compliance & Certificate Inspection */}
+              <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: "14px" }}>
+
+                <h4 style={{ margin: "0 0 10px 0", fontSize: "13.5px", fontWeight: 700, color: "var(--color-primary)", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <FaCertificate /> Equipment Compliance &amp; Certificates
+                </h4>
+
+                {/* EXPIRED CERTIFICATE WARNING BANNER */}
+                {expiredCertificates.length > 0 && (
+                  <div style={{
+                    background: "var(--color-danger-bg)",
+                    border: "1px solid rgba(220, 38, 38, 0.4)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "12px 14px",
+                    color: "var(--color-danger)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    marginBottom: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px"
+                  }}>
+                    <FaExclamationTriangle style={{ fontSize: "18px", flexShrink: 0 }} />
+                    <div>
+                      <strong>⚠️ CERTIFICATE EXPIRED WARNING:</strong> This equipment has an EXPIRED calibration/safety certificate (
+                      {expiredCertificates.map(c => c.certificateName).join(", ")}
+                      ). Please verify calibration status with the laboratory manager before running sensitive experiments.
+                    </div>
+                  </div>
+                )}
+
+                {loadingCerts ? (
+
+                  <div style={{ fontSize: "12.5px", color: "var(--color-text-subtle)" }}>
+                    Checking equipment certificates...
+                  </div>
+
+                ) : certificates.length > 0 ? (
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+
+                    {certificates.map((cert) => (
+
+                      <div
+                        key={cert.id}
+                        style={{
+                          padding: "10px 14px",
+                          background: "var(--color-bg-card)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "var(--radius-md)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: "12.5px"
+                        }}
+                      >
+
+                        <div>
+                          <div style={{ fontWeight: 700, color: "var(--color-text-main)" }}>
+                            {cert.certificateName} ({cert.certificateNumber || "N/A"})
+                          </div>
+                          <div style={{ fontSize: "11.5px", color: "var(--color-text-subtle)", marginTop: "2px" }}>
+                            Issued by {cert.issuedBy || "Official Authority"} • Valid through {cert.expiryDate}
+                          </div>
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
+                          <span className={`status-badge status-${cert.status === "VALID" ? "approved" : cert.status === "EXPIRING_SOON" ? "pending" : "rejected"}`}>
+                            {cert.status ? cert.status.replaceAll("_", " ") : "VALID"}
+                          </span>
+
+                          {cert.certificateFileUrl && (
+                            <a
+                              href={`http://localhost:8080${cert.certificateFileUrl}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{
+                                color: "var(--color-primary)",
+                                fontWeight: 600,
+                                textDecoration: "none",
+                                fontSize: "12px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "4px 8px",
+                                background: "var(--color-primary-light)",
+                                border: "1px solid var(--color-primary-border)",
+                                borderRadius: "var(--radius-sm)"
+                              }}
+                            >
+                              <FaFilePdf /> View Document
+                            </a>
+                          )}
+
+                        </div>
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+                ) : (
+
+                  <div style={{ fontSize: "12.5px", color: "var(--color-text-muted)", fontStyle: "italic" }}>
+                    📜 No certificate available for this equipment.
+                  </div>
 
                 )}
 
-                <p>
-
-                  <strong>Cost Per Day:</strong>{" "}
-
-                  ₹
-                  {selectedEquipment.costPerDay?.toLocaleString()}
-
-                </p>
-
-                <p>
-
-                  <strong>Status:</strong>{" "}
-
-                  {selectedEquipment.status === "BOOKED"
-                    ? "Currently Booked (You will join the Waiting List)"
-                    : "Available"}
-
-                </p>
-
-                              </div>
+              </div>
 
             </div>
 
@@ -252,9 +400,7 @@ function BookingForm({
           <div className="form-group">
 
             <label>
-
-              Start Date
-
+              Start Date *
             </label>
 
             <input
@@ -271,9 +417,7 @@ function BookingForm({
           <div className="form-group">
 
             <label>
-
-              End Date
-
+              End Date *
             </label>
 
             <input
@@ -287,89 +431,108 @@ function BookingForm({
 
           </div>
 
-          {selectedEquipment &&
-            estimatedDays > 0 && (
+          {isInvalidDateRange && (
 
             <div
               className="full-width"
               style={{
-                marginTop: "15px",
-                background: "#eef6ff",
-                border: "1px solid #c7ddff",
-                borderRadius: "12px",
+                color: "var(--color-danger)",
+                background: "var(--color-danger-bg)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                padding: "10px 14px",
+                borderRadius: "var(--radius-md)",
+                fontSize: "13px",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
+            >
+              <FaExclamationTriangle />
+              {dateErrorMessage}
+            </div>
+
+          )}
+
+          {selectedEquipment && datesSelected && !isInvalidDateRange && estimatedDays > 0 && (
+
+            <div
+              className="full-width"
+              style={{
+                background: hasDateConflict ? "var(--color-warning-bg)" : "var(--color-primary-light)",
+                border: `1px solid ${hasDateConflict ? "rgba(217, 119, 6, 0.4)" : "var(--color-primary-border)"}`,
+                borderRadius: "var(--radius-lg)",
                 padding: "20px",
               }}
             >
 
-              <h3
-                style={{
-                  marginBottom: "15px",
-                  color: "#2563eb",
-                }}
-              >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                <span style={{ fontWeight: 700, color: hasDateConflict ? "var(--color-warning)" : "var(--color-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <FaRupeeSign /> Estimated Utilization Summary
+                </span>
+                <span style={{ fontSize: "13px", color: "var(--color-secondary)", fontWeight: 600 }}>
+                  {estimatedDays} Day{estimatedDays > 1 ? "s" : ""} ({bookingData.startDate} to {bookingData.endDate})
+                </span>
+              </div>
 
-                <FaRupeeSign
-                  style={{
-                    marginRight: "8px",
-                  }}
-                />
+              <div style={{ fontSize: "22px", fontWeight: 800, color: hasDateConflict ? "var(--color-warning)" : "var(--color-success)" }}>
+                Total Cost: ₹{estimatedCost.toLocaleString()}
+              </div>
 
-                Estimated Utilization Cost
-
-              </h3>
-
-              <p>
-
-                <strong>Duration:</strong>{" "}
-
-                {estimatedDays} day
-                {estimatedDays > 1 ? "s" : ""}
-
-              </p>
-
-              <p>
-
-                <strong>Cost Per Day:</strong>{" "}
-
-                ₹
-                {selectedEquipment.costPerDay?.toLocaleString()}
-
-              </p>
-
-              <h2
-                style={{
-                  marginTop: "15px",
-                  color: "#16a34a",
-                }}
-              >
-
-                Total Estimated Cost :
-                ₹
-                {estimatedCost.toLocaleString()}
-
-              </h2>
-
-              {selectedEquipment.status === "BOOKED" && (
+              {hasDateConflict ? (
 
                 <div
                   style={{
-                    marginTop: "18px",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    background: "#fff7ed",
-                    border: "1px solid #fdba74",
-                    color: "#9a3412",
-                    fontWeight: "600",
+                    marginTop: "12px",
+                    padding: "12px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "rgba(217, 119, 6, 0.15)",
+                    border: "1px solid rgba(217, 119, 6, 0.4)",
+                    color: "var(--color-warning)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px"
                   }}
                 >
+                  <FaExclamationTriangle style={{ fontSize: "18px", flexShrink: 0 }} />
+                  <div>
+                    {hasApprovedConflict && hasWaitingConflict ? (
+                      <span>
+                        <strong>Approved Booking &amp; Waiting List Conflict:</strong> The selected period ({bookingData.startDate} to {bookingData.endDate}) overlaps with an approved booking ({conflictingApproved.startDate} to {conflictingApproved.endDate}) and existing waiting-list requests. Submitting will place your request into the <strong>Waiting List</strong>.
+                      </span>
+                    ) : hasApprovedConflict ? (
+                      <span>
+                        <strong>Equipment Already Booked:</strong> The equipment is already booked during part of the selected period ({conflictingApproved.startDate} to {conflictingApproved.endDate}). You can join the <strong>Waiting List</strong>.
+                      </span>
+                    ) : (
+                      <span>
+                        <strong>Waiting-List Requests Exist:</strong> There are already waiting-list requests for the selected period ({conflictingWaiting.startDate} to {conflictingWaiting.endDate}). You can join the <strong>Waiting List</strong>.
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-                  ⚠ This equipment is currently booked.
+              ) : (
 
-                  <br />
-
-                  Your request will automatically
-                  be added to the waiting list.
-
+                <div
+                  style={{
+                    marginTop: "12px",
+                    padding: "10px 14px",
+                    borderRadius: "var(--radius-md)",
+                    background: "rgba(16, 185, 129, 0.1)",
+                    border: "1px solid rgba(16, 185, 129, 0.3)",
+                    color: "#10b981",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <FaCheckCircle style={{ fontSize: "16px", flexShrink: 0 }} />
+                  <strong>Dates Available:</strong> Equipment is available for your requested date range.
                 </div>
 
               )}
@@ -381,16 +544,14 @@ function BookingForm({
           <div className="form-group full-width">
 
             <label>
-
-              Purpose
-
+              Research Purpose *
             </label>
 
             <textarea
               name="purpose"
               value={bookingData.purpose}
               onChange={handleChange}
-              placeholder="Example: AI research experiment, thesis work, hardware testing..."
+              placeholder="Describe your research experiment or testing scope..."
               required
             />
 
@@ -399,20 +560,15 @@ function BookingForm({
         </div>
 
         <button
-          className="submit-btn"
+          className={`submit-btn ${hasDateConflict ? "waiting-btn" : ""}`}
           type="submit"
-          disabled={bookableEquipment.length === 0}
+          disabled={bookableEquipment.length === 0 || isInvalidDateRange || !datesSelected || !bookingData.purpose.trim()}
+          style={hasDateConflict ? { background: "var(--color-warning)", borderColor: "var(--color-warning)" } : {}}
         >
 
-          <FaCalendarCheck
-            style={{
-              marginRight: "8px",
-            }}
-          />
-
-          {selectedEquipment?.status === "BOOKED"
-            ? "Join Waiting List"
-            : "Book Equipment"}
+          {hasDateConflict
+            ? "⏳ Join Waiting List"
+            : "📅 Book Equipment"}
 
         </button>
 

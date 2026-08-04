@@ -13,9 +13,11 @@ function NotificationsTable({
 
       <div className="table-header">
 
-        <h2>My Notifications</h2>
+        <h2>Notification Center</h2>
 
-        <span>Total : {notifications.length}</span>
+        <span className="status-badge status-approved">
+          Total Notifications: {notifications.length}
+        </span>
 
       </div>
 
@@ -27,8 +29,8 @@ function NotificationsTable({
 
             <tr>
               <th>ID</th>
-              <th>Message</th>
-              <th>Date & Time</th>
+              <th>Notification Message</th>
+              <th>Date &amp; Time</th>
               <th>Status</th>
               <th style={{ textAlign: "center" }}>Actions</th>
             </tr>
@@ -48,7 +50,7 @@ function NotificationsTable({
 
                   <tr key={notification.id}>
 
-                    <td>{notification.id}</td>
+                    <td><strong>#{notification.id}</strong></td>
 
                     <td>{notification.message}</td>
 
@@ -63,8 +65,8 @@ function NotificationsTable({
                       <span
                         className={
                           isRead
-                            ? "status-badge completed"
-                            : "status-badge pending"
+                            ? "status-badge status-completed"
+                            : "status-badge status-pending"
                         }
                       >
                         {isRead ? "Read" : "Unread"}
@@ -72,7 +74,7 @@ function NotificationsTable({
 
                     </td>
 
-                    <td className="action-column">
+                    <td style={{ textAlign: "center" }}>
 
                       {!isRead && (
 
@@ -81,7 +83,7 @@ function NotificationsTable({
                           onClick={() => markAsRead(notification.id)}
                           title="Mark as Read"
                         >
-                          <FaCheckCircle />
+                          <FaCheckCircle /> Mark Read
                         </button>
 
                       )}
@@ -91,7 +93,7 @@ function NotificationsTable({
                         onClick={() => deleteNotification(notification.id)}
                         title="Delete Notification"
                       >
-                        <FaTrash />
+                        <FaTrash /> Delete
                       </button>
 
                     </td>
@@ -108,9 +110,9 @@ function NotificationsTable({
 
                 <td
                   colSpan="5"
-                  className="no-data"
+                  className="empty-table"
                 >
-                  No notifications found.
+                  🔔 No notifications found.
                 </td>
 
               </tr>

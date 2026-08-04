@@ -1,263 +1,165 @@
-/* =====================================================
-   MODERN FORM CARD
-===================================================== */
+/* ============================================================
+   ENTERPRISE FORM STYLES
+   ============================================================ */
 
-.form-card{
-
-    background:#ffffff;
-
-    border-radius:22px;
-
-    padding:35px;
-
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
-
-    margin-top:25px;
-
-    border:1px solid #ececec;
-
-    animation:fadeIn .35s ease;
-
+.form-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+  margin-top: 24px;
+  border: 1px solid var(--color-border);
+  animation: formFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
-
-.form-header{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:30px;
-
+@keyframes formFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.form-header h2{
-
-    margin:0;
-
-    font-size:30px;
-
-    font-weight:700;
-
-    color:#222;
-
+/* FORM HEADER */
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 16px;
 }
 
-.form-header p{
-
-    margin-top:8px;
-
-    color:#777;
-
+.form-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  letter-spacing: -0.01em;
 }
 
-/* =====================================================
-   GRID
-===================================================== */
-
-.form-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(2,minmax(0,1fr));
-
-    gap:24px;
-
+.form-header p {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 13.5px;
 }
 
-.full-width{
-
-    grid-column:1/-1;
-
+/* FORM GRID */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
 }
 
-/* =====================================================
-   GROUP
-===================================================== */
-
-.form-group{
-
-    display:flex;
-
-    flex-direction:column;
-
+.full-width {
+  grid-column: 1 / -1;
 }
 
-.form-group label{
-
-    margin-bottom:10px;
-
-    font-weight:600;
-
-    color:#444;
-
-    font-size:15px;
-
+/* FORM GROUP & LABELS */
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
-/* =====================================================
-   INPUTS
-===================================================== */
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
 
+/* INPUTS, SELECTS, TEXTAREAS */
 .form-group input,
 .form-group select,
-.form-group textarea{
-
-    width:100%;
-
-    padding:14px 16px;
-
-    border:1px solid #ddd;
-
-    border-radius:12px;
-
-    background:#fafbff;
-
-    font-size:15px;
-
-    transition:.25s;
-
-    box-sizing:border-box;
-
+.form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-card);
+  color: var(--color-text-main);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
 }
 
-.form-group textarea{
-
-    resize:vertical;
-
-    min-height:120px;
-
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
-.form-group select:focus{
-
-    outline:none;
-
-    border-color:#6c63ff;
-
-    background:#fff;
-
-    box-shadow:0 0 0 4px rgba(108,99,255,.15);
-
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
 }
 
-/* =====================================================
-   FILE INPUT
-===================================================== */
-
-.form-group input[type=file]{
-
-    background:white;
-
-    padding:12px;
-
-    cursor:pointer;
-
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-text-subtle);
 }
 
-/* =====================================================
-   BUTTON
-===================================================== */
-
-.submit-btn{
-
-    width:100%;
-
-    margin-top:30px;
-
-    border:none;
-
-    background:linear-gradient(135deg,#6c63ff,#5b52f5);
-
-    color:white;
-
-    padding:16px;
-
-    border-radius:12px;
-
-    font-size:16px;
-
-    font-weight:600;
-
-    cursor:pointer;
-
-    transition:.3s;
-
-    box-shadow:0 12px 25px rgba(108,99,255,.25);
-
+/* FILE INPUT */
+.form-group input[type="file"] {
+  background: var(--color-bg-subtle);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-style: dashed;
 }
 
-.submit-btn:hover{
-
-    transform:translateY(-3px);
-
-    box-shadow:0 18px 35px rgba(108,99,255,.35);
-
+.form-group input[type="file"]:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-border);
 }
 
-/* =====================================================
-   PLACEHOLDER
-===================================================== */
-
-::placeholder{
-
-    color:#999;
-
+/* SUBMIT BUTTON */
+.submit-btn {
+  width: 100%;
+  margin-top: 24px;
+  border: none;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* =====================================================
-   ANIMATION
-===================================================== */
-
-@keyframes fadeIn{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(20px);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0);
-
-    }
-
+.submit-btn:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media(max-width:900px){
-
-.form-grid{
-
-    grid-template-columns:1fr;
-
+.submit-btn:active {
+  transform: translateY(0);
 }
 
-.form-card{
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 
-    padding:25px;
+  .form-card {
+    padding: 20px;
+  }
 
-}
-
-.form-header h2{
-
-    font-size:24px;
-
-}
-
+  .form-header h2 {
+    font-size: 1.1rem;
+  }
 }

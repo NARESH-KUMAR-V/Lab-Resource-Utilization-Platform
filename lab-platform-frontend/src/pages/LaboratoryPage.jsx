@@ -193,7 +193,7 @@ function LaboratoryPage() {
 
     <Layout>
 
-      <div className="laboratory-page">
+      <div className="equipment-page">
 
         <div className="page-header">
 
@@ -204,7 +204,7 @@ function LaboratoryPage() {
               Laboratory Management
             </h1>
 
-            <p>Manage laboratories.</p>
+            <p>Manage all registered research laboratories and facilities.</p>
 
           </div>
 
@@ -235,7 +235,7 @@ function LaboratoryPage() {
 
             <input
               type="text"
-              placeholder="Search laboratory..."
+              placeholder="Search laboratories..."
               value={searchText}
               onChange={(e)=>setSearchText(e.target.value)}
             />

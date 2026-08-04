@@ -20,7 +20,11 @@ public interface EquipmentService {
 
     List<Equipment> getSharedEquipment();
 
+    List<Equipment> getExternalSharedEquipment();
+
     Equipment shareEquipment(Long id);
 
     List<Equipment> getEquipmentByLaboratory(Long laboratoryId);
+
+    void recalculateEquipmentStatus(Equipment equipment);
 }

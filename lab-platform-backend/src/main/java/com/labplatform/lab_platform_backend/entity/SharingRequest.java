@@ -26,7 +26,19 @@ public class SharingRequest {
 
     private String purpose;
 
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
     private LocalDate requestDate;
 
     private String status;
+
+    // --- Simulated Cost & Billing Fields ---
+
+    private Double estimatedCost;
+
+    private Double interInstitutionFee = 0.0;
+
+    private Double totalAmount;
 }

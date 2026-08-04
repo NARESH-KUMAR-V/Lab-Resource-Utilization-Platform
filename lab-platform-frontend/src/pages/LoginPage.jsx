@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
@@ -12,7 +12,16 @@ function LoginPage() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const errorMsg = searchParams.get("error");
+    if (errorMsg) {
+      setError(errorMsg);
+      toast.error(errorMsg);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
 
@@ -37,9 +46,12 @@ function LoginPage() {
 
       console.error(err);
 
-      setError("Invalid email or password");
+      const serverMessage =
+        err.response?.data?.message || "Invalid email or password";
 
-      toast.error("Invalid email or password");
+      setError(serverMessage);
+
+      toast.error(serverMessage);
 
     }
 

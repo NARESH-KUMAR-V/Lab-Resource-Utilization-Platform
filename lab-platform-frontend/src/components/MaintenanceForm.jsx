@@ -7,6 +7,28 @@ function MaintenanceForm({
   handleChange,
   handleSubmit,
 }) {
+
+  const selectedEquipment = equipmentList.find(
+    (item) => String(item.id) === String(formData.equipmentId)
+  );
+
+  const filteredTechnicians = selectedEquipment
+    ? technicians.filter((tech) => {
+        const eqLabId = selectedEquipment.laboratory?.id;
+        const eqInstId =
+          selectedEquipment.laboratory?.institution?.id ||
+          selectedEquipment.institution?.id;
+
+        const techLabId = tech.laboratory?.id;
+        const techInstId = tech.institution?.id;
+
+        if (eqLabId && techLabId && String(eqLabId) === String(techLabId)) return true;
+        if (eqInstId && techInstId && String(eqInstId) === String(techInstId)) return true;
+
+        return false;
+      })
+    : technicians;
+
   return (
     <div className="form-card">
 
@@ -44,6 +66,24 @@ function MaintenanceForm({
           </div>
 
           <div className="form-group">
+            <label>Maintenance Type</label>
+
+            <select
+              name="maintenanceType"
+              value={formData.maintenanceType}
+              onChange={handleChange}
+              required
+            >
+              <option value="PREVENTIVE">🛡️ Preventive</option>
+              <option value="CORRECTIVE">🔧 Corrective</option>
+              <option value="EMERGENCY">🚨 Emergency</option>
+              <option value="CALIBRATION">📐 Calibration</option>
+              <option value="SOFTWARE_UPDATE">💻 Software Update</option>
+              <option value="HARDWARE_INSPECTION">🔍 Hardware Inspection</option>
+            </select>
+          </div>
+
+          <div className="form-group">
             <label>Assign Technician</label>
 
             <select
@@ -51,11 +91,20 @@ function MaintenanceForm({
               value={formData.technicianId}
               onChange={handleChange}
             >
-              <option value="">Select Technician</option>
+              <option value="">
+                {selectedEquipment
+                  ? `Select Technician (${selectedEquipment.laboratory?.name || "Institution"})`
+                  : "Select Equipment First"}
+              </option>
 
-              {technicians.map((tech) => (
+              {filteredTechnicians.map((tech) => (
                 <option key={tech.id} value={tech.id}>
                   {tech.name}
+                  {tech.laboratory
+                    ? ` (${tech.laboratory.name})`
+                    : tech.institution
+                    ? ` (${tech.institution.name})`
+                    : ""}
                 </option>
               ))}
 
@@ -71,6 +120,20 @@ function MaintenanceForm({
               value={formData.maintenanceDate}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Estimated Cost (₹)</label>
+
+            <input
+              type="number"
+              name="maintenanceCost"
+              value={formData.maintenanceCost}
+              onChange={handleChange}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
             />
           </div>
 
