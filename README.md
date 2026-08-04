@@ -80,33 +80,47 @@ npm run dev
 
 ## 📸 Screenshots
 
-### 🔐 Login Page
-
+### 🔐 Login & Authentication
 ![Login Page](Images/login.png)
 
-### 🏠 Dashboard
-
+### 📊 Dashboard
 ![Dashboard](Images/dashboard.png)
 
-### 🖥️ Equipment Management
+### 🏛️ Institution Management
+![Institution Management](Images/institutions.png)
 
-![Equipment](Images/equipment.png)
+### 🧪 Laboratory Management
+![Laboratory Management](Images/laboratories.png)
+
+### 🔬 Equipment Management
+![Equipment Management](Images/equipment.png)
 
 ### 📅 Booking Management
+![Booking Management](Images/bookings.png)
 
-![Booking](Images/booking.png)
+### 🔧 Maintenance & Asset Service Management
+![Maintenance Management](Images/maintenance.png)
 
-### 🔧 Maintenance Management
+### 📈 Equipment Utilization Analytics
+![Utilization Analytics](Images/utilization.png)
 
-![Maintenance](Images/maintenance.png)
+### 📜 Equipment Certificates & Compliance
+![Certificate Management](Images/certificates.png)
 
-### 🤝 Sharing Requests
+### 🔄 Inter-Institution Resource Sharing
+![Resource Sharing](Images/sharing.png)
 
-![Sharing](Images/sharing.png)
+### 💰 Cost & Billing
+![Cost and Billing](Images/billing.png)
+
+### 📑 Reports & Export
+![Reports and Export](Images/reports.png)
 
 ### 🔔 Notifications
+![Notifications](Images/notifications.png)
 
-![Notifications](Images/notification.png)
+### 👥 User Management
+![User Management](Images/users.png)
 
 ---
 
