@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/axios";
 import "./LoginPage.css";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const googleEmail = searchParams.get("email") || "";
+  const googleName = searchParams.get("name") || "";
+  const isFromGoogle = searchParams.get("fromGoogle") === "true";
+  const isReapply = searchParams.get("reapply") === "true";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,6 +31,11 @@ function RegisterPage() {
   useEffect(() => {
     loadInstitutions();
   }, []);
+
+  useEffect(() => {
+    if (googleName) setName(googleName);
+    if (googleEmail) setEmail(googleEmail);
+  }, [googleName, googleEmail]);
 
   useEffect(() => {
     if (!institutionId) {
@@ -66,7 +77,7 @@ function RegisterPage() {
       await api.post("/auth/register", {
         name,
         email,
-        password,
+        password: password || (isFromGoogle ? "GoogleOAuthUserSecuredPass123!" : ""),
         role,
         department,
         institutionId: role === "SYSTEM_ADMIN" ? null : institutionId,
@@ -77,7 +88,7 @@ function RegisterPage() {
       });
 
       toast.success(
-        "Registration submitted successfully! Your account is awaiting System Admin approval."
+        "Registration re-submitted successfully! Your account is awaiting System Admin approval."
       );
       navigate("/login");
     } catch (err) {
@@ -93,7 +104,43 @@ function RegisterPage() {
       <div className="login-card">
         <h1>Lab Resource Utilization Platform</h1>
 
-        <h2>Create Account</h2>
+        <h2>{isReapply ? "Re-Submit Registration" : "Create Account"}</h2>
+
+        {isReapply ? (
+          <div
+            style={{
+              background: "#fff3cd",
+              color: "#856404",
+              padding: "12px",
+              borderRadius: "8px",
+              marginBottom: "16px",
+              fontSize: "13.5px",
+              border: "1px solid #ffeeba",
+              textAlign: "left",
+              lineHeight: "1.4"
+            }}
+          >
+            ℹ️ <strong>Re-submitting for Google Account ({googleEmail})</strong><br />
+            Your previous registration was not approved. Please select your <strong>Institution</strong>, <strong>Laboratory</strong>, <strong>Department</strong>, and <strong>Requested Role</strong> below to re-submit your registration for System Admin review.
+          </div>
+        ) : isFromGoogle ? (
+          <div
+            style={{
+              background: "#e8f0fe",
+              color: "#1a73e8",
+              padding: "12px",
+              borderRadius: "8px",
+              marginBottom: "16px",
+              fontSize: "13.5px",
+              border: "1px solid #aecbfa",
+              textAlign: "left",
+              lineHeight: "1.4"
+            }}
+          >
+            ✨ <strong>Google Sign-Up ({googleEmail})</strong><br />
+            Please complete your profile by selecting your <strong>Requested Role</strong>, <strong>Institution</strong>, and <strong>Laboratory</strong>. Your registration will be sent to the System Admin for approval.
+          </div>
+        ) : null}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -111,19 +158,23 @@ function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              readOnly={isFromGoogle}
+              style={isFromGoogle ? { background: "#f1f3f4", cursor: "not-allowed" } : {}}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {!isFromGoogle && (
+            <div className="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required={!isFromGoogle}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Requested Role</label>
@@ -198,7 +249,7 @@ function RegisterPage() {
             type="submit"
             className="login-btn"
           >
-            Register
+            {isReapply ? "Re-Submit Registration" : "Submit Registration"}
           </button>
 
           <div className="auth-link">

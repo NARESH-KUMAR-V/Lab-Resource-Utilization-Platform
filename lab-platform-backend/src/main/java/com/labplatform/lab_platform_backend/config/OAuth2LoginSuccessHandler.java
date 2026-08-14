@@ -1,6 +1,5 @@
 package com.labplatform.lab_platform_backend.config;
 
-import com.labplatform.lab_platform_backend.entity.Role;
 import com.labplatform.lab_platform_backend.entity.User;
 import com.labplatform.lab_platform_backend.entity.UserStatus;
 import com.labplatform.lab_platform_backend.repository.UserRepository;
@@ -14,6 +13,9 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -34,24 +36,43 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(email);
-            newUser.setName(name);
-            newUser.setRole(Role.RESEARCHER);
-            newUser.setRequestedRole(Role.RESEARCHER);
-            newUser.setStatus(UserStatus.PENDING);
-            newUser.setAuthProvider("GOOGLE");
-            return userRepository.save(newUser);
-        });
+        Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
-        if (user.getStatus() == UserStatus.PENDING) {
-            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Your registration is awaiting System Admin approval.", java.nio.charset.StandardCharsets.UTF_8));
+        if (existingUserOpt.isEmpty()) {
+            // New Google account -> Redirect to Registration page to pick Role, Institution, Lab & Dept
+            String redirectUrl = "http://localhost:5173/register"
+                    + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                    + "&name=" + URLEncoder.encode(name != null ? name : "", StandardCharsets.UTF_8)
+                    + "&fromGoogle=true";
+            response.sendRedirect(redirectUrl);
             return;
         }
 
+        User user = existingUserOpt.get();
+
         if (user.getStatus() == UserStatus.REJECTED) {
-            response.sendRedirect("http://localhost:5173/login?error=" + java.net.URLEncoder.encode("Your registration request has been rejected.", java.nio.charset.StandardCharsets.UTF_8));
+            // Allow rejected users to re-submit their registration details
+            String redirectUrl = "http://localhost:5173/register"
+                    + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                    + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
+                    + "&fromGoogle=true"
+                    + "&reapply=true";
+            response.sendRedirect(redirectUrl);
+            return;
+        }
+
+        if (user.getStatus() == UserStatus.PENDING) {
+            // If incomplete Google registration (missing institution selection), redirect to register page to complete
+            if (user.getInstitution() == null) {
+                String redirectUrl = "http://localhost:5173/register"
+                        + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                        + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
+                        + "&fromGoogle=true";
+                response.sendRedirect(redirectUrl);
+                return;
+            }
+
+            response.sendRedirect("http://localhost:5173/login?error=" + URLEncoder.encode("Your registration is awaiting System Admin approval.", StandardCharsets.UTF_8));
             return;
         }
 
@@ -69,8 +90,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 "http://localhost:5173/oauth-success"
                         + "?token=" + token
                         + "&id=" + user.getId()
-                        + "&name=" + java.net.URLEncoder.encode(user.getName(), java.nio.charset.StandardCharsets.UTF_8)
-                        + "&email=" + java.net.URLEncoder.encode(user.getEmail(), java.nio.charset.StandardCharsets.UTF_8)
+                        + "&name=" + URLEncoder.encode(user.getName(), StandardCharsets.UTF_8)
+                        + "&email=" + URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8)
                         + "&role=" + user.getRole().name()
                         + "&institutionId=" + (institutionId != null ? institutionId : "")
                         + "&laboratoryId=" + (laboratoryId != null ? laboratoryId : "")

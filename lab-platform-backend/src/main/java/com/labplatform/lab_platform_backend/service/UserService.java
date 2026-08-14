@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -39,31 +40,50 @@ public class UserService {
 
     public User register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already registered");
-        }
+        Optional<User> existingOpt = userRepository.findByEmail(request.getEmail());
+        User user;
 
-        User user = new User();
+        if (existingOpt.isPresent()) {
+            User existing = existingOpt.get();
+            // Allow re-registering if account is PENDING or REJECTED
+            if (existing.getStatus() == UserStatus.PENDING || existing.getStatus() == UserStatus.REJECTED) {
+                user = existing;
+            } else {
+                throw new RuntimeException("Email already registered and active.");
+            }
+        } else {
+            user = new User();
+            user.setCreatedAt(LocalDateTime.now());
+        }
 
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        } else if (user.getPassword() == null) {
+            user.setPassword(passwordEncoder.encode("GoogleOAuthUserSecuredPass123!"));
+        }
+
         user.setRole(request.getRole());
         user.setRequestedRole(request.getRole());
         user.setStatus(UserStatus.PENDING);
         user.setDepartment(request.getDepartment());
-        user.setCreatedAt(LocalDateTime.now());
 
         if (request.getInstitutionId() != null) {
             Institution institution = institutionRepository.findById(request.getInstitutionId())
                     .orElseThrow(() -> new RuntimeException("Institution not found"));
             user.setInstitution(institution);
+        } else {
+            user.setInstitution(null);
         }
 
         if (request.getLaboratoryId() != null) {
             Laboratory laboratory = laboratoryRepository.findById(request.getLaboratoryId())
                     .orElseThrow(() -> new RuntimeException("Laboratory not found"));
             user.setLaboratory(laboratory);
+        } else {
+            user.setLaboratory(null);
         }
 
         User savedUser = userRepository.save(user);
