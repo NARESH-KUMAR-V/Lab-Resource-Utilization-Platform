@@ -450,7 +450,7 @@ function CertificateManagementPage() {
                       <td>
                         {cert.certificateFileUrl ? (
                           <a
-                            href={`http://localhost:8080${cert.certificateFileUrl}`}
+                            href={`https://lab-platform-backend.onrender.com${cert.certificateFileUrl}`}
                             target="_blank"
                             rel="noreferrer"
                             className="cert-file-link"

@@ -71,7 +71,7 @@ function EquipmentTable({
                   <img
                     src={
                       item.imageUrl
-                        ? `http://localhost:8080${item.imageUrl}`
+                        ? `https://lab-platform-backend.onrender.com${item.imageUrl}`
                         : noImage
                     }
                     alt={item.name}

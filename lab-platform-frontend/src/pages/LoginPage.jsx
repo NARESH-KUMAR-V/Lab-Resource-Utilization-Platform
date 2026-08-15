@@ -113,7 +113,7 @@ function LoginPage() {
         </form>
 
         <a
-          href="http://localhost:8080/oauth2/authorization/google"
+          href="https://lab-platform-backend.onrender.com/oauth2/authorization/google"
           className="google-btn"
         >
           Continue with Google

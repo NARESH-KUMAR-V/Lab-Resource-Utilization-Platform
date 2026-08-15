@@ -227,7 +227,7 @@ function BookingForm({
                 <img
                   src={
                     selectedEquipment.imageUrl
-                      ? `http://localhost:8080${selectedEquipment.imageUrl}`
+                      ? `https://lab-platform-backend.onrender.com${selectedEquipment.imageUrl}`
                       : "/assets/no-image.png"
                   }
                   alt={selectedEquipment.name}
@@ -354,7 +354,7 @@ function BookingForm({
 
                           {cert.certificateFileUrl && (
                             <a
-                              href={`http://localhost:8080${cert.certificateFileUrl}`}
+                              href={`https://lab-platform-backend.onrender.com${cert.certificateFileUrl}`}
                               target="_blank"
                               rel="noreferrer"
                               style={{
