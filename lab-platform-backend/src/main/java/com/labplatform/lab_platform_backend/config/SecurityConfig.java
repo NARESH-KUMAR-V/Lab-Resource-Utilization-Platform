@@ -71,7 +71,8 @@ public class SecurityConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "http://localhost:5174"
+                "http://localhost:5174",
+                "https://lab-resource-utilization-platform-8viy.onrender.com"
         ));
 
         config.setAllowedMethods(
@@ -118,6 +119,9 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
+
+                        // Preflight OPTIONS requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Public APIs
                         .requestMatchers(
