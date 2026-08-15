@@ -40,7 +40,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (existingUserOpt.isEmpty()) {
             // New Google account -> Redirect to Registration page to pick Role, Institution, Lab & Dept
-            String redirectUrl = "http://localhost:5173/register"
+            String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
                     + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                     + "&name=" + URLEncoder.encode(name != null ? name : "", StandardCharsets.UTF_8)
                     + "&fromGoogle=true";
@@ -52,7 +52,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (user.getStatus() == UserStatus.REJECTED) {
             // Allow rejected users to re-submit their registration details
-            String redirectUrl = "http://localhost:5173/register"
+            String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
                     + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                     + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
                     + "&fromGoogle=true"
@@ -64,7 +64,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (user.getStatus() == UserStatus.PENDING) {
             // If incomplete Google registration (missing institution selection), redirect to register page to complete
             if (user.getInstitution() == null) {
-                String redirectUrl = "http://localhost:5173/register"
+                String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
                         + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                         + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
                         + "&fromGoogle=true";
@@ -72,7 +72,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 return;
             }
 
-            response.sendRedirect("http://localhost:5173/login?error=" + URLEncoder.encode("Your registration is awaiting System Admin approval.", StandardCharsets.UTF_8));
+            response.sendRedirect("https://lab-resource-utilization-platform-8viy.onrender.com/login?error=" + URLEncoder.encode("Your registration is awaiting System Admin approval.", StandardCharsets.UTF_8));
             return;
         }
 
@@ -87,7 +87,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 : null;
 
         response.sendRedirect(
-                "http://localhost:5173/oauth-success"
+                "https://lab-resource-utilization-platform-8viy.onrender.com/oauth-success"
                         + "?token=" + token
                         + "&id=" + user.getId()
                         + "&name=" + URLEncoder.encode(user.getName(), StandardCharsets.UTF_8)
