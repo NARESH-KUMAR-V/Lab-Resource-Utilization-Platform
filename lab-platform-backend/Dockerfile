@@ -14,4 +14,4 @@ RUN ./mvnw clean package -DskipTests
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/lab-platform-backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-Xms128m", "-Xmx320m", "-XX:MaxMetaspaceSize=128m", "-XX:ReservedCodeCacheSize=64m", "-Xss512k", "-XX:+TieredCompilation", "-XX:TieredStopAtLevel=1", "-jar", "target/lab-platform-backend-0.0.1-SNAPSHOT.jar"]
