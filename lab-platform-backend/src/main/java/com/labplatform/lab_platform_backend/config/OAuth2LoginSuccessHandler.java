@@ -36,11 +36,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
 
+        String origin = request.getHeader("Origin");
+        String referer = request.getHeader("Referer");
+        String baseUrl = "https://lab-resource-utilization-platform-8viy.onrender.com";
+        if ((origin != null && origin.contains("localhost")) || (referer != null && referer.contains("localhost"))) {
+            baseUrl = "http://localhost:5173";
+        }
+
         Optional<User> existingUserOpt = userRepository.findByEmail(email);
 
         if (existingUserOpt.isEmpty()) {
             // New Google account -> Redirect to Registration page to pick Role, Institution, Lab & Dept
-            String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
+            String redirectUrl = baseUrl + "/register"
                     + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                     + "&name=" + URLEncoder.encode(name != null ? name : "", StandardCharsets.UTF_8)
                     + "&fromGoogle=true";
@@ -52,7 +59,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         if (user.getStatus() == UserStatus.REJECTED) {
             // Allow rejected users to re-submit their registration details
-            String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
+            String redirectUrl = baseUrl + "/register"
                     + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                     + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
                     + "&fromGoogle=true"
@@ -64,7 +71,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         if (user.getStatus() == UserStatus.PENDING) {
             // If incomplete Google registration (missing institution selection), redirect to register page to complete
             if (user.getInstitution() == null) {
-                String redirectUrl = "https://lab-resource-utilization-platform-8viy.onrender.com/register"
+                String redirectUrl = baseUrl + "/register"
                         + "?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                         + "&name=" + URLEncoder.encode(name != null ? name : user.getName(), StandardCharsets.UTF_8)
                         + "&fromGoogle=true";
@@ -72,7 +79,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 return;
             }
 
-            response.sendRedirect("https://lab-resource-utilization-platform-8viy.onrender.com/login?error=" + URLEncoder.encode("Your registration is awaiting System Admin approval.", StandardCharsets.UTF_8));
+            response.sendRedirect(baseUrl + "/login?error=" + URLEncoder.encode("Your registration is awaiting System Admin approval.", StandardCharsets.UTF_8));
             return;
         }
 
@@ -87,7 +94,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 : null;
 
         response.sendRedirect(
-                "https://lab-resource-utilization-platform-8viy.onrender.com/oauth-success"
+                baseUrl + "/oauth-success"
                         + "?token=" + token
                         + "&id=" + user.getId()
                         + "&name=" + URLEncoder.encode(user.getName(), StandardCharsets.UTF_8)
